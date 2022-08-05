@@ -2,62 +2,12 @@ import pygame
 from pygame.locals import *
 from sys import exit
 
-main_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 1/"
-img_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 1/images/"
-map_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 1/your maps/"
-
 from basics import *
 from buttons import *
+from writer import *
+from variables import *
 
-WIDTH = 1280
-HEIGHT = 700
 
-TILE_SIZE = 40
-
-mid_x = WIDTH/2
-mid_y = HEIGHT/2
-
-pygame.init()
-my_screen = pygame.display.set_mode((WIDTH, HEIGHT), NOFRAME)
-
-select_button = Button("selection.png", mid_x, mid_y, img_dir, pygame.mouse, my_screen, 10, 1)
-select_button.selected_button = None
-print_button = Button("SAVE MAP.PNG", mid_x + 400, mid_y + 200, img_dir, pygame.mouse, my_screen, 10, 1)
-upload_button = Button("upload_text.PNG", mid_x + 400, mid_y - 75, img_dir, pygame.mouse, my_screen, 10, 1)
-quit_button = Button("QUIT.PNG", mid_x + 400, mid_y + 260, img_dir, pygame.mouse, my_screen, 10, 1)
-
-my_images = {0: "dirt_pixel.PNG",
-             1: "grass_pixel.PNG",
-             2: "stone_pixel.PNG",
-             3: "water_pixel.PNG"}
-
-block_buttons = []
-for i in range(0, len(my_images)):
-    block_buttons.append(Button(my_images[i], mid_x + 315 + i * 55, mid_y + 100, img_dir, pygame.mouse, my_screen, 10))
-
-height = 14
-width = 18
-
-map = []
-for y in range(height):
-    map.append([])
-    for x in range(width):
-        map[len(map) - 1].append(0)
-
-buttons = []
-for y in range(height):
-    buttons.append([])
-    for x in range(width):
-        image = my_images[map[y][x]]
-        buttons[len(buttons) - 1].append(Button(image, 75 + x * TILE_SIZE, 85 + y * TILE_SIZE, img_dir, pygame.mouse, my_screen))
-select_button.selected_button = buttons[0][0]
-select_button.x, select_button.y = select_button.selected_button.x, select_button.selected_button.y
-
-map_buttons = []
-
-message = "dirt"
-
-run = True
 while run:
     for event in pygame.event.get():
         if event.type == MOUSEBUTTONDOWN:
@@ -66,61 +16,25 @@ while run:
                 exit()
                 run = False
 
-            for button in map_buttons:
+            for button in version_buttons:
                 if button.call():
-                    wanted_version = button.text
-                    begin_copying = False
-                    map = [[]]
+                    map = read_map(button, map_dir)
 
-                    file = open(map_dir + "Print out.txt", "r")
+                    print(map, len(map), len(map[0]))
 
-                    for line in file:
-                        if begin_copying and line == "\n":
-                            begin_copying = False
-                            break
-
-                        elif begin_copying:
-                            for character in line:
-                                if character == "\n":
-                                    map.append([])
-                                elif character != " ":
-                                    map[len(map) - 1].append(int(character))
-
-                        if str(line) == str(wanted_version):
-                            begin_copying = True
-
-
-                    map.remove([])
-                    file.close()
-
-                    buttons = []
+                    map_buttons = []
                     for y in range(height):
-                        buttons.append([])
+                        map_buttons.append([])
                         for x in range(width):
                             image = my_images[map[y][x]]
-                            buttons[len(buttons) - 1].append(
-                                Button(image, 75 + x * TILE_SIZE, 85 + y * TILE_SIZE, img_dir, pygame.mouse, my_screen))
+                            map_buttons[len(map_buttons) - 1].append(
+                                Button(image, 75 + x * TILE_SIZE, 85 + y * TILE_SIZE, img_dir, pygame.mouse, main_screen))
 
-
-            if upload_button.call():
-                file = open(map_dir + "Print out.txt", "r")
-
-                file_index = 0
-                for line in file:
-                    if line == "\n":
-                        file_index += 1
-
-                file.close()
-
-                map_buttons = []
-                for i in range(0, file_index):
-                    upload_text(f"Map {i}", img_dir, 25, "white", "Din Condensed")
-                    map_buttons.append(Button(f"Map {i}.png", mid_x + 245 + i*60, mid_y - 35, img_dir, pygame.mouse, my_screen, 10, 1))
-                    map_buttons[len(map_buttons) - 1].text = f"Map {i} \n"
+                    break
 
             if print_button.call():
                 new_map = []
-                for row in buttons:
+                for row in map_buttons:
                     new_map.append([])
                     for button in row:
                         for index in my_images:
@@ -137,17 +51,8 @@ while run:
 
                 file.close()
 
-                file = open(map_dir + "Print out.txt", "a")
-
-                file.write(f"Map {file_index} \n")
-
-                for y in range(height):
-                    sentence = ""
-                    for x in range(width):
-                        sentence += f" {new_map[y][x]} "
-                    file.write(sentence + "\n")
-                file.write("\n")
-                file.close()
+                write_map_to_file(file_index, new_map, height, width, map_dir)
+                version_buttons = get_versions(upload_text, Button, mid_x, mid_y, main_screen, map_dir, img_dir)
 
             for button in block_buttons:
                 if button.call():
@@ -164,7 +69,7 @@ while run:
                             elif index == 3:
                                 message = "water"
 
-            for row in buttons:
+            for row in map_buttons:
                 for button in row:
                     if button.call():
                         select_button.x, select_button.y = button.x, button.y
@@ -182,25 +87,14 @@ while run:
                         break
 
     if run:
-        my_screen.fill("black")
+        main_screen.fill("black")
 
-        draw_text("MINECRAFT", mid_x + 400, mid_y - 300, my_screen, 65)
-        draw_text("THE ACTUAL ORIGINAL", mid_x + 400, mid_y - 225, my_screen, 35, "white", "DIN Condensed")
-        draw_text("made by Czeslaw Herbert Zestra Tracz", mid_x + 400, mid_y - 190, my_screen, 15, "white", "Noteworthy")
-
-        for row in buttons:
+        for row in map_buttons:
             for button in row:
                 button.draw()
 
-        for button in map_buttons:
+        for button in version_buttons:
             button.draw()
-
-        select_button.draw()
-        print_button.draw()
-        upload_button.draw()
-        quit_button.draw()
-
-        draw_text(message, mid_x + 400, mid_y + 10, my_screen, 40)
 
         for button in block_buttons:
             button.draw()
@@ -214,9 +108,20 @@ while run:
         elif message == "water":
             index = 3
 
-        draw_image(my_images[index], mid_x + 480, mid_y + 30, img_dir, my_screen, 1)
-        draw_image("selection.png", mid_x + 480, mid_y + 30, img_dir, my_screen, 1)
-        draw_image("selection.png", mid_x + 315 + index*55, mid_y + 100, img_dir, my_screen, 1)
+        select_button.draw()
+        print_button.draw()
+        quit_button.draw()
+
+        draw_image(my_images[index], mid_x + 480, mid_y + 30, img_dir, main_screen, 1)
+        draw_image("selection.png", mid_x + 480, mid_y + 30, img_dir, main_screen, 1)
+        draw_image("selection.png", mid_x + 315 + index * 55, mid_y + 100, img_dir, main_screen, 1)
+        draw_image("upload_text.PNG", mid_x + 400, mid_y - 75, img_dir, main_screen, 1)
+
+        draw_text("MINECRAFT", mid_x + 400, mid_y - 300, main_screen, 65)
+        draw_text("THE ACTUAL ORIGINAL", mid_x + 400, mid_y - 225, main_screen, 35, "white", "DIN Condensed")
+        draw_text("made by Czeslaw Herbert Zestra Tracz", mid_x + 400, mid_y - 190, main_screen, 15, "white",
+                  "Noteworthy")
+        draw_text(message, mid_x + 400, mid_y + 10, main_screen, 40)
 
         pygame.time.delay(100)
         pygame.display.update()
