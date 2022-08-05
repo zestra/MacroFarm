@@ -28,6 +28,12 @@ You can then access it and other maps or versions using the versions bar:
 
 ![](https://github.com/zestra/Zestras-MineCraft/blob/main/draft%201/screenshots/version.png)
 
+If you want to delete a specfic version, you can manually go to the text file containing the versions and select-delete the version you do not like. 
+
+![](https://github.com/zestra/Zestras-MineCraft/blob/main/draft%201/screenshots/print.png)
+
+However, be very careful to keep the format unaltered, because the writer file which reads and writes the versions heavily relies on the format.
+
 Finally, you can exit with the QUIT button:
 
 ![](https://github.com/zestra/Zestras-MineCraft/blob/main/draft%201/screenshots/quit.png)
