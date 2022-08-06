@@ -1,8 +1,6 @@
-# Zestras-MineCraft
+# Zestras-Adventure-Game
 
-![](https://github.com/zestra/Zestras-MineCraft/blob/main/draft%201/screenshots/title.png)
-
-Welcome to my drafts of minecraft!
+Welcome to my adventure game (or drafts of it)!
 
 # ScreenShots
 
