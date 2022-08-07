@@ -70,3 +70,5 @@ animal_images = {1: {"down": "chick_front.png",
                       "left": "goat_left.png"}}
 animal_dic = {"chick": 1}
 animal_dic2 = {1: "chick"}
+
+
