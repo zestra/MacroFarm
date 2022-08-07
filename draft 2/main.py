@@ -11,6 +11,8 @@ from variables import *
 from complex import *
 from animals import *
 
+# Non-Constant Variables
+
 player_images = {"left": "wiz_left.png",
               "right": "wiz_right.png",
               "up": "wiz_back.png",
@@ -45,6 +47,8 @@ player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map
 
 current_storage = "inventory"
 
+# Play theme Sound
+
 pygame.mixer.init()
 pygame.mixer.music.load(sound_dir + "theme.wav")
 pygame.mixer.music.play(-1)
@@ -55,9 +59,30 @@ while run:
     pre_player_x = player_x
     pre_player_y = player_y
 
-    inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, animal_map = update_window(inventory, health, shop, selected_shop_item, selected_shop_deal, selected_inventory_item, current_storage, player_direction, player_y, player_x, animal_map, scenery_map, blocks_map, objects_map, pre_player_x, pre_player_y, hammer_death, life_counter, run, pre_blocks)
+    # Update all Events
 
-    player_images = draw_window(blocks_map, objects_map, scenery_map, player_images, player_direction, player_x, player_y, animal_map, current_storage, inventory, selected_inventory_item, health, shop, selected_shop_deal, selected_shop_item)
+    inventory, selected_inventory_item, \
+    shop, selected_shop_item, selected_shop_deal, \
+    current_storage, \
+    player_direction, player_x, player_y, pre_player_x, pre_player_y, \
+    blocks_map, objects_map, animal_map, scenery_map, \
+    hammer_death, life_counter, run, pre_blocks, health  = update_window(inventory, selected_inventory_item,
+                                                                      shop, selected_shop_item, selected_shop_deal,
+                                                                      current_storage,
+                                                                      player_direction, player_y, player_x, pre_player_x, pre_player_y,
+                                                                      animal_map, scenery_map, blocks_map, objects_map,
+                                                                      hammer_death, life_counter, run, pre_blocks, health)
+
+    # Draw entire Window
+
+    player_images = draw_window(inventory, selected_inventory_item,
+                                shop, selected_shop_deal, selected_shop_item,
+                                current_storage,
+                                player_images, player_direction, player_x, player_y,
+                                blocks_map, objects_map, scenery_map, animal_map,
+                                health)
+
+    # other...
 
     life_counter += 1
     if life_counter == 180:

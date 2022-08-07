@@ -3,7 +3,8 @@ from basics import *
 from animals import *
 
 
-def draw_shop(current_storage, shop, selected_shop_item, selected_shop_deal):
+def draw_shop(shop, selected_shop_item, selected_shop_deal,
+              current_storage):
     if current_storage == "shop":
         draw_rect(my_screen, WIDTH - mid_x_coord + 150 + 10, HEIGHT / 2, 250, 700, (28, 28, 28), 0)
 
@@ -30,7 +31,8 @@ def draw_shop(current_storage, shop, selected_shop_item, selected_shop_deal):
                mid_y_coord + selected_shop_item * (TILE + 40) + 130, img_dir, my_screen, 1)
 
 
-def draw_inventory_store(current_storage, inventory, selected_inventory_item):
+def draw_inventory_store(inventory, selected_inventory_item,
+                         current_storage):
     if current_storage == "inventory":
         draw_rect(my_screen, mid_x_coord - 150 + 10, HEIGHT/2, 275, 700, (28, 28, 28), 0)
 
@@ -83,14 +85,20 @@ def draw_health(health, player_images):
     return player_images
 
 
-def draw_inventory(current_storage, inventory, selected_inventory_item, health, player_images):
-    draw_inventory_store(current_storage, inventory, selected_inventory_item)
+def draw_inventory(inventory, selected_inventory_item,
+                   current_storage,
+                   player_images, health):
+    draw_inventory_store(inventory, selected_inventory_item,
+                         current_storage)
     player_images = draw_health(health, player_images)
 
     return player_images
 
 
-def manage_activated_items(inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, pre_player_x, pre_player_y, animal_map, initialize):
+def manage_activated_items(inventory, shop,
+                           player_direction, player_x, player_y, pre_player_x, pre_player_y,
+                           blocks_map, objects_map, scenery_map, animal_map,
+                           hammer_death, life_counter, run, pre_blocks, health):
     for item in objects_dic:
         if item in ["pear", "meat"]:
             if inventory[item][2] is True and health < 100:
@@ -156,10 +164,15 @@ def manage_activated_items(inventory, health, player_direction, player_x, player
                             inventory["portal"][1] = 0
             inventory[item][2] = False
 
-    return inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, animal_map
+    return inventory, shop, \
+           player_direction, player_x, player_y, \
+           blocks_map, objects_map, scenery_map, animal_map, \
+           hammer_death, life_counter, run, pre_blocks, health
 
 
-def draw_map(blocks_map, objects_map, scenery_map, player_images, player_direction, player_x, player_y, animal_map):
+def draw_map(player_images, player_direction, player_x, player_y,
+             blocks_map, objects_map, scenery_map, animal_map):
+
     for y in range(0, 14):
         for x in range(0, 18):
             if blocks_map[y][x] != "":
@@ -176,7 +189,7 @@ def draw_map(blocks_map, objects_map, scenery_map, player_images, player_directi
                        mid_y_coord + player_y * TILE, img_dir, my_screen, 1)
 
 
-def update_animals(animal_map, blocks_map, objects_map, scenery_map):
+def update_animals(blocks_map, objects_map, scenery_map, animal_map):
     for y in range(0, 13):
         for x in range(0, 17):
             animal = animal_map[y][x]
@@ -184,7 +197,13 @@ def update_animals(animal_map, blocks_map, objects_map, scenery_map):
                 animal.update(blocks_map, objects_map, scenery_map, animal_map)
 
 
-def update_main(inventory, health, shop, selected_shop_item, selected_shop_deal, selected_inventory_item, current_storage, player_direction, player_y, player_x, animal_map, scenery_map, blocks_map, objects_map, pre_player_x, pre_player_y, hammer_death):
+def update_main(inventory, selected_inventory_item,
+                shop, selected_shop_item, selected_shop_deal,
+                current_storage,
+                player_direction, player_y, player_x, pre_player_x, pre_player_y,
+                blocks_map, objects_map, scenery_map, animal_map,
+                hammer_death, health):
+
     for event in pygame.event.get():
         if event.type == KEYDOWN:
             if event.key == K_DELETE:
@@ -293,7 +312,12 @@ def update_main(inventory, health, shop, selected_shop_item, selected_shop_deal,
                 inventory[objects_dic2[selected_inventory_item]][1] -= 1
                 objects_map[player_y][player_x] = selected_inventory_item
 
-    return inventory, health, shop, selected_shop_item, selected_shop_deal, selected_inventory_item, current_storage, player_direction, player_y, player_x, animal_map, scenery_map, blocks_map, objects_map, pre_player_x, pre_player_y, hammer_death
+    return inventory, selected_inventory_item, \
+           shop, selected_shop_item, selected_shop_deal,\
+           current_storage, \
+           player_direction, player_y, player_x, pre_player_x, pre_player_y, \
+           blocks_map, objects_map, scenery_map, animal_map, \
+           hammer_death, health
 
 
 def initialize(shop):
@@ -427,20 +451,57 @@ def initialize(shop):
            animal_map
 
 
-def draw_window(blocks_map, objects_map, scenery_map, player_images, player_direction, player_x, player_y, animal_map, current_storage, inventory, selected_inventory_item, health, shop, selected_shop_deal, selected_shop_item):
-    draw_map(blocks_map, objects_map, scenery_map, player_images, player_direction, player_x, player_y, animal_map)
+def draw_window(inventory, selected_inventory_item,
+                shop, selected_shop_deal, selected_shop_item,
+                current_storage,
+                player_images, player_direction, player_x, player_y,
+                blocks_map, objects_map, scenery_map, animal_map,
+                health):
 
-    player_images = draw_inventory(current_storage, inventory, selected_inventory_item, health, player_images)
+    draw_map(player_images, player_direction, player_x, player_y,
+             blocks_map, objects_map, scenery_map, animal_map)
 
-    draw_shop(current_storage, shop, selected_shop_item, selected_shop_deal)
+    player_images = draw_inventory(inventory, selected_inventory_item,
+                                   current_storage,
+                                   player_images, health)
+
+    draw_shop(shop, selected_shop_item, selected_shop_deal,
+              current_storage)
 
     return player_images
 
-def update_window(inventory, health, shop, selected_shop_item, selected_shop_deal, selected_inventory_item, current_storage, player_direction, player_y, player_x, animal_map, scenery_map, blocks_map, objects_map, pre_player_x, pre_player_y, hammer_death, life_counter, run, pre_blocks):
-    inventory, health, shop, selected_shop_item, selected_shop_deal, selected_inventory_item, current_storage, player_direction, player_y, player_x, animal_map, scenery_map, blocks_map, objects_map, pre_player_x, pre_player_y, hammer_death = update_main(inventory, health, shop, selected_shop_item, selected_shop_deal, selected_inventory_item, current_storage, player_direction, player_y, player_x, animal_map, scenery_map, blocks_map, objects_map, pre_player_x, pre_player_y, hammer_death)
 
-    update_animals(animal_map, blocks_map, objects_map, scenery_map)
+def update_window(inventory, selected_inventory_item,
+                  shop, selected_shop_item, selected_shop_deal,
+                  current_storage,
+                  player_direction, player_y, player_x, pre_player_x, pre_player_y,
+                  animal_map, scenery_map, blocks_map, objects_map,
+                  hammer_death, life_counter, run, pre_blocks, health):
 
-    inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, animal_map = manage_activated_items(inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, pre_player_x, pre_player_y, animal_map, initialize)
+    inventory, selected_inventory_item, \
+        shop, selected_shop_item, selected_shop_deal, \
+        current_storage, \
+        player_direction, player_y, player_x, pre_player_x, pre_player_y, \
+        blocks_map, objects_map, scenery_map, animal_map, \
+        hammer_death, health = update_main(inventory, selected_inventory_item,
+                                           shop, selected_shop_item, selected_shop_deal,
+                                           current_storage,
+                                           player_direction, player_y, player_x, pre_player_x, pre_player_y,
+                                           blocks_map, objects_map, scenery_map, animal_map,
+                                           hammer_death, health)
 
-    return inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, animal_map
+    update_animals(blocks_map, objects_map, scenery_map, animal_map)
+
+    inventory, shop, \
+        player_direction, player_x, player_y, \
+        blocks_map, objects_map, scenery_map, animal_map, \
+        hammer_death, life_counter, run, pre_blocks, health = manage_activated_items(inventory, shop,
+                                                                                     player_direction, player_x, player_y, pre_player_x, pre_player_y,
+                                                                                     blocks_map, objects_map, scenery_map, animal_map,
+                                                                                     hammer_death, life_counter, run, pre_blocks, health)
+    return inventory, selected_inventory_item, \
+           shop, selected_shop_item, selected_shop_deal, \
+           current_storage, \
+           player_direction, player_x, player_y, pre_player_x, pre_player_y, \
+           blocks_map, objects_map, animal_map, scenery_map, \
+           hammer_death, life_counter, run, pre_blocks, health
