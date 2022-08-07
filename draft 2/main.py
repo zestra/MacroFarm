@@ -7,61 +7,8 @@ import random
 
 from basics import *
 from buttons import *
-
-# IMAGES
-
-# image sources
-
-# WINDOW VARIABLES
-
-WIDTH = 1280
-HEIGHT = 700
-
-TILE = 40
-
-mid_x_coord = (WIDTH/2) - 9*TILE
-mid_y_coord = (HEIGHT/2) - 6.5*TILE
-
-# MAKE SCREEN
-
-pygame.init()
-my_screen = pygame.display.set_mode((WIDTH, HEIGHT), NOFRAME)
-
-
-main_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 2/"
-img_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 2/images/"
-sound_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 2/sounds/"
-
-block_images = {0: "dirt_pixel.png",
-                1: "grass_pixel.png",
-                2: "stone_pixel.png",
-                3: "water_pixel.png"}
-
-objects_images = {0: "boat.png",
-                  1: "coin.png",
-                  2: "hammer.png",
-                  3: "log.png",
-                  4: "meat.png",
-                  5: "pear.png",
-                  6: "portal.png"}
-
-objects_dic = {"boat": 0,
-               "coin": 1,
-               "hammer": 2,
-               "log": 3,
-               "meat": 4,
-               "pear": 5,
-               "portal": 6}
-
-objects_dic2 = {0: "boat",
-               1: "coin",
-               2: "hammer",
-               3: "log",
-               4: "meat",
-               5: "pear",
-               6: "portal"}
-
-scenery_images = {0: "tree.png"}
+from variables import *
+from complex import *
 
 player_images = {"left": "wiz_left.png",
               "right": "wiz_right.png",
@@ -75,7 +22,8 @@ inventory = {  # name: [image, no., activated?]
     "log": [objects_images[objects_dic["log"]], 7, False],
     "meat": [objects_images[objects_dic["meat"]], 2, False],
     "pear": [objects_images[objects_dic["pear"]], 9, False],
-    "portal": [objects_images[objects_dic["portal"]], 0, False]}
+    "portal": [objects_images[objects_dic["portal"]], 0, False],
+    "treasure": [objects_images[objects_dic["treasure"]], 2, False]}
 
 selected_inventory_item = 0
 
@@ -86,23 +34,22 @@ shop = {  # item: [no., deal 1 (in coins), deal 2 (in logs), image]
     "log": [10, 3, "", objects_images[objects_dic["log"]]],
     "meat": [30, 4, 4, objects_images[objects_dic["meat"]]],
     "pear": [50, 2, 2, objects_images[objects_dic["pear"]]],
-    "portal": [7, 40, "", objects_images[objects_dic["portal"]]]}
+    "portal": [7, 40, "", objects_images[objects_dic["portal"]]],
+    "treasure": [20, 20, 20, objects_images[objects_dic["treasure"]]]}
 
 selected_shop_item = 0
 selected_shop_deal = 2
-
-timer = 0
 
 
 def initialize():
     player_direction = "down"
 
     for item in shop:
-        if item != "portal":
+        if item not in ["portal", "treasure"]:
             shop[item][0] += 20
 
     for item in inventory:
-        if item not in ["portal", "boat"]:
+        if item not in ["portal", "boat", "treasure"]:
             inventory[item][1] += 5
 
     # MAKE MAP
@@ -128,6 +75,7 @@ def initialize():
     # object mapping
 
     objects_map = []
+
     for y in range(14):
         objects_map.append([])
         for x in range(18):
@@ -142,7 +90,7 @@ def initialize():
 
         item = random.randint(0, len(objects_images) - 1)
 
-        while objects_dic2[item] in ["boat", "portal"]:
+        while objects_dic2[item] in ["boat", "portal", "treasure"]:
             item = random.randint(0, len(objects_images) - 1)
 
         objects_map[random_y][random_x] = item
@@ -156,6 +104,14 @@ def initialize():
 
     objects_map[random_y][random_x] = objects_dic["portal"]
 
+    random_y = random.randint(0, 13)
+    random_x = random.randint(0, 17)
+
+    while (blocks_map[random_y][random_x] == 3):
+        random_y = random.randint(0, 13)
+        random_x = random.randint(0, 17)
+
+    objects_map[random_y][random_x] = objects_dic["treasure"]
 
     # scenery mapping
 
@@ -203,6 +159,8 @@ def initialize():
 
 player_direction, player_x, player_y, shop, inventory, blocks_map, objects_map, scenery_map, health, hammer_death, life_counter, run, pre_blocks = initialize()
 
+current_storage = "inventory"
+
 while run:
     my_screen.fill((0, 0, 0))
 
@@ -218,6 +176,7 @@ while run:
                 exit()
 
             if event.key == K_BACKSPACE:
+                current_storage = "shop"
                 selected_shop_item += 1
                 if selected_shop_item == 6:
                     selected_shop_item = 0
@@ -225,31 +184,38 @@ while run:
                     if selected_shop_deal > 3:
                         selected_shop_deal = 2
 
-            if event.key == K_n\
-                    and shop[objects_dic2[selected_shop_item]][0] > 0:
-
-                if selected_shop_deal - 1 == 1 and shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1] != "":
-                    if shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1] <= inventory["coin"][1]:
-                        shop[objects_dic2[selected_shop_item]][0] -= 1
-                        inventory[shop[objects_dic2[selected_shop_item]][3][0: len(shop[objects_dic2[selected_shop_item]][3]) - 4]][1] += 1
-                        inventory["coin"][1] -= shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1]
-
-                elif selected_shop_deal - 1 == 2 and shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1] != "":
-                    if shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1] <= inventory["log"][1]:
-                        shop[objects_dic2[selected_shop_item]][0] -= 1
-                        inventory[shop[objects_dic2[selected_shop_item]][3][0: len(shop[objects_dic2[selected_shop_item]][3]) - 4]][1] += 1
-                        inventory["log"][1] -= shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1]
-
             if event.key == K_TAB:
+                current_storage = "inventory"
                 selected_inventory_item += 1
                 if selected_inventory_item == len(objects_dic):
                     selected_inventory_item = 0
 
-            if event.key == K_RETURN\
-                    and inventory[objects_dic2[selected_inventory_item]][1] > 0:
-                if objects_dic2[selected_inventory_item] in ["boat", "hammer", "meat", "pear", "portal"]:
-                    inventory[objects_dic2[selected_inventory_item]][2] = True
-                    inventory[objects_dic2[selected_inventory_item]][1] -= 1
+            if event.key == K_RETURN:
+                if current_storage == "inventory":
+                    if inventory[objects_dic2[selected_inventory_item]][1] > 0:
+                        if objects_dic2[selected_inventory_item] in ["boat", "hammer", "portal", "treasure"]:
+                            inventory[objects_dic2[selected_inventory_item]][2] = True
+                            inventory[objects_dic2[selected_inventory_item]][1] -= 1
+                        if objects_dic2[selected_inventory_item] in ["meat", "pear"] and health < 100:
+                            inventory[objects_dic2[selected_inventory_item]][2] = True
+                            inventory[objects_dic2[selected_inventory_item]][1] -= 1
+                elif current_storage == "shop":
+                    if shop[objects_dic2[selected_shop_item]][0] > 0:
+                        if selected_shop_deal - 1 == 1 and shop[objects_dic2[selected_shop_item]][
+                            selected_shop_deal - 1] != "":
+                            if shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1] <= inventory["coin"][1]:
+                                shop[objects_dic2[selected_shop_item]][0] -= 1
+                                inventory[shop[objects_dic2[selected_shop_item]][3][
+                                          0: len(shop[objects_dic2[selected_shop_item]][3]) - 4]][1] += 1
+                                inventory["coin"][1] -= shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1]
+
+                        elif selected_shop_deal - 1 == 2 and shop[objects_dic2[selected_shop_item]][
+                            selected_shop_deal - 1] != "":
+                            if shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1] <= inventory["log"][1]:
+                                shop[objects_dic2[selected_shop_item]][0] -= 1
+                                inventory[shop[objects_dic2[selected_shop_item]][3][
+                                          0: len(shop[objects_dic2[selected_shop_item]][3]) - 4]][1] += 1
+                                inventory["log"][1] -= shop[objects_dic2[selected_shop_item]][selected_shop_deal - 1]
 
             if event.key == K_UP\
                     and player_y > 0:
@@ -290,129 +256,27 @@ while run:
                     and inventory["boat"][2] is True:
                 pass
 
-            if event.key == K_c\
+            if event.key == K_SPACE\
                 and objects_map[player_y][player_x] != "":
-                inventory[objects_dic2[objects_map[player_y][player_x]]][1] += 1
+                if objects_dic2[objects_map[player_y][player_x]] in ["meat", "pear"] and health < 100:
+                    health += 10
+                else:
+                    inventory[objects_dic2[objects_map[player_y][player_x]]][1] += 1
                 objects_map[player_y][player_x] = ""
-
-            if event.key == K_d\
-                and objects_map[player_y][player_x] == ""\
-                and inventory[objects_dic2[selected_inventory_item]][1] > 0:
-                objects_map[player_y][player_x] = selected_inventory_item
-                inventory[objects_dic2[selected_inventory_item]][1] -= 1
 
     # DRAWING MAP
 
-    y = -1
-    for row in blocks_map:
-        y += 1
-        x = -0
-        for block in row:
-            x += 1
-            if block != "":
-                draw_image(block_images[block], mid_x_coord + x*TILE, mid_y_coord + y*TILE, img_dir, my_screen)
-
-    y = -1
-    for row in objects_map:
-        y += 1
-        x = -0
-        for object in row:
-            x += 1
-            if object != "":
-                draw_image(objects_images[object], mid_x_coord + x * TILE, mid_y_coord + y * TILE, img_dir, my_screen,
-                           1)
-
-    y = -1
-    for row in scenery_map:
-        y += 1
-        x = -0
-        for scenery in row:
-            x += 1
-            if scenery != "":
-                draw_image(scenery_images[scenery], mid_x_coord + x*TILE, mid_y_coord + y*TILE, img_dir, my_screen, 1, 1)
-
-        if player_y == y:
-            draw_image(player_images[player_direction], mid_x_coord + player_x * TILE + TILE,
-                       mid_y_coord + player_y * TILE, img_dir, my_screen, 1)
+    draw_map(blocks_map, objects_map, scenery_map, player_images, player_direction, player_x, player_y)
 
     # MANAGING INVENTORY
 
-    for item in objects_dic:
-        if item in ["pear", "meat"]:
-            if inventory[item][2] is True and health < 100:
-                health += 10
-                inventory[item][2] = False
+    inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks = manage_activated_items(inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, pre_player_x, pre_player_y, initialize)
 
-        elif item == "boat":
-            if inventory[item][2] is True:
-                if player_y != pre_player_y or player_x != pre_player_x:
-                    pre_blocks.append(blocks_map[player_y][player_x])
-                if len(pre_blocks) == 2:
-                    inventory[item][2] = False
-                    pre_blocks = []
-        elif item == "portal":
-            if inventory[item][2] is True:
-                player_direction, player_x, player_y, shop, inventory, blocks_map, objects_map, scenery_map, health, hammer_death, life_counter, run, pre_blocks = initialize()
-                inventory[item][2] = False
-
-
-    # DRAWING INVENTORY
-
-    draw_text("INVENTORY", mid_x_coord - 150, mid_y_coord, my_screen, 45, "white", "din condensed")
-
-    # DRAWING HEALTH BAR
-    lower_y = 60
-    further_x = 20
-
-    draw_text("health bar", mid_x_coord - 200 + further_x, mid_y_coord + lower_y, my_screen, 20, "white", "arial")
-    draw_rect(my_screen, mid_x_coord - 140 + further_x, mid_y_coord + lower_y, 100, 20, "white", 0, 0)
-    if health > 30:
-        draw_rect(my_screen, mid_x_coord - 140 + further_x, mid_y_coord + lower_y, health, 20, "green", 0, 0)
-    else:
-        draw_rect(my_screen, mid_x_coord - 140 + further_x, mid_y_coord + lower_y, health, 20, "red", 0, 0)
-    draw_text(str(health) + "%", mid_x_coord - 120 + further_x, mid_y_coord + 5 + lower_y, my_screen, 10, "black", "arial")
-
-    # ...
-
-    lower_y = 50
-    index_max = 3
-    index = 0
-    for y in range(0, len(inventory)):
-        if inventory[objects_dic2[y]][2] is True:
-            draw_image("highlight.png", 2*TILE + index*(TILE + 40), mid_y_coord + (y - index) * (TILE + (40/(index_max**2))) + 90 + lower_y, img_dir, my_screen, 0, 0)
-        if y == objects_dic["portal"]:
-            draw_image("portal2.png", 2 * TILE - 10 + index*(TILE + 40), mid_y_coord + (y - index) * (TILE + (40/(index_max**2))) + 110 + lower_y, img_dir,
-                       my_screen, 1)
-        else:
-            draw_image(inventory[objects_dic2[y]][0], 2*TILE - 10 + index*(TILE + 40), mid_y_coord + (y - index) * (TILE + (40/(index_max**2))) + 110 + lower_y, img_dir, my_screen, 1)
-        draw_text(str(inventory[objects_dic2[y]][1]), 2*TILE + 20 + index*(TILE + 40), mid_y_coord + (y - index) * (TILE + (40/(index_max**2))) + 70 + lower_y, my_screen, 20, "red", "DIN condensed")
-        draw_rect(my_screen, 2*TILE + index*(TILE + 40), mid_y_coord + (y - index) * (TILE + (40/(index_max**2))) + 90 + lower_y, 60, 60)
-        if y == selected_inventory_item:
-            draw_image("selection.png", 2 * TILE + index*(TILE + 40), mid_y_coord + (y - index) * (TILE + (40/(index_max**2))) + 120 + lower_y, img_dir, my_screen, 1, 1)
-
-        index += 1
-        if index == index_max:
-            index = 0
+    player_images = draw_inventory(current_storage, inventory, selected_inventory_item, health, player_images)
 
     # DRAWING SHOP
 
-    draw_text("SHOP", WIDTH - mid_x_coord + 150, mid_y_coord, my_screen, 45, "white", "din condensed")
-
-    for _ in range(0, len(shop)):
-        if _ == objects_dic["portal"]:
-            draw_image("portal2.png", WIDTH - 200 - 10, mid_y_coord + _ * (TILE + 40) + 120, img_dir,
-                       my_screen, 1)
-        else:
-            draw_image(shop[objects_dic2[_]][3], WIDTH - 200 - 10, mid_y_coord + _*(TILE + 40) + 120, img_dir, my_screen, 1)
-        draw_rect(my_screen, WIDTH - 240, mid_y_coord + _*(TILE + 40) + 70, 240, 60, "white", 1, 0)
-        draw_rect(my_screen, WIDTH - 240, mid_y_coord + _*(TILE + 40) + 70, 60, 60, "white", 1, 0)
-        draw_text(str(shop[objects_dic2[_]][0]), WIDTH - 240 + 60 + 30, mid_y_coord + _*(TILE + 40) + 70 + 20, my_screen, 25, "red", "DIN condensed")
-        draw_rect(my_screen, WIDTH - 240 + 60, mid_y_coord + _*(TILE + 40) + 70, 60, 60, "white", 1, 0)
-        draw_text(str(shop[objects_dic2[_]][1]), WIDTH - 240 + 60 + 60 + 30, mid_y_coord + _*(TILE + 40) + 70 + 20, my_screen, 25, "red", "DIN condensed")
-        draw_rect(my_screen, WIDTH - 240 + 60 + 60, mid_y_coord + _*(TILE + 40) + 70, 60, 60, "white", 1, 0)
-        draw_text(str(shop[objects_dic2[_]][2]), WIDTH - 240 + 60 + 60 + 60 + 30, mid_y_coord + _*(TILE + 40) + 70 + 20, my_screen, 25, "red", "DIN condensed")
-
-    draw_image("selection.png", WIDTH - 210 + 60 * selected_shop_deal, mid_y_coord + selected_shop_item * (TILE + 40) + 130, img_dir, my_screen, 1)
+    draw_shop(current_storage, shop, selected_shop_item, selected_shop_deal)
 
     # MANAGING LIFE EVENTS
 
@@ -421,12 +285,7 @@ while run:
         health -= 10
         life_counter = 0
 
-    if health == 0:
+    if health <= 0:
         run = False
 
     pygame.display.update()
-
-
-
-
-
