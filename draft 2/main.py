@@ -11,6 +11,7 @@ from variables import *
 from complex import *
 from animals import *
 
+
 # Non-Constant Variables
 
 player_images = {"left": "wiz_left.png",
