@@ -9,6 +9,7 @@ from basics import *
 from buttons import *
 from variables import *
 from complex import *
+from animals import *
 
 player_images = {"left": "wiz_left.png",
               "right": "wiz_right.png",
@@ -16,26 +17,26 @@ player_images = {"left": "wiz_left.png",
               "down": "wiz_front.png"}
 
 inventory = {  # name: [image, no., activated?]
-    "boat": [objects_images[objects_dic["boat"]], 0, False],
-    "coin": [objects_images[objects_dic["coin"]], 10, False],
-    "hammer": [objects_images[objects_dic["hammer"]], 3, False],
-    "log": [objects_images[objects_dic["log"]], 7, False],
-    "meat": [objects_images[objects_dic["meat"]], 2, False],
-    "pear": [objects_images[objects_dic["pear"]], 9, False],
+    "boat": [objects_images[objects_dic["boat"]], 2, False],
+    "coin": [objects_images[objects_dic["coin"]], 20, False],
+    "hammer": [objects_images[objects_dic["hammer"]], 4, False],
+    "log": [objects_images[objects_dic["log"]], 12, False],
+    "meat": [objects_images[objects_dic["meat"]], 8, False],
+    "pear": [objects_images[objects_dic["pear"]], 14, False],
     "portal": [objects_images[objects_dic["portal"]], 0, False],
-    "treasure": [objects_images[objects_dic["treasure"]], 2, False]}
+    "treasure": [objects_images[objects_dic["treasure"]], 0, False]}
 
 selected_inventory_item = 0
 
 shop = {  # item: [no., deal 1 (in coins), deal 2 (in logs), image]
-    "boat": [-13, 30, 25, objects_images[objects_dic["boat"]]],
+    "boat": [-13, 30, 15, objects_images[objects_dic["boat"]]],
     "coin": [20, "", 1, objects_images[objects_dic["coin"]]],
     "hammer": [15, 3, 2, objects_images[objects_dic["hammer"]]],
-    "log": [10, 3, "", objects_images[objects_dic["log"]]],
-    "meat": [30, 4, 4, objects_images[objects_dic["meat"]]],
-    "pear": [50, 2, 2, objects_images[objects_dic["pear"]]],
-    "portal": [7, 40, "", objects_images[objects_dic["portal"]]],
-    "treasure": [20, 20, 20, objects_images[objects_dic["treasure"]]]}
+    "log": [10, 2, "", objects_images[objects_dic["log"]]],
+    "meat": [30, 4, "", objects_images[objects_dic["meat"]]],
+    "pear": [50, 2, "", objects_images[objects_dic["pear"]]],
+    "portal": [7, 50, "", objects_images[objects_dic["portal"]]],
+    "treasure": [20, 20, 10, objects_images[objects_dic["treasure"]]]}
 
 selected_shop_item = 0
 selected_shop_deal = 2
@@ -47,10 +48,6 @@ def initialize():
     for item in shop:
         if item not in ["portal", "treasure"]:
             shop[item][0] += 20
-
-    for item in inventory:
-        if item not in ["portal", "boat", "treasure"]:
-            inventory[item][1] += 5
 
     # MAKE MAP
 
@@ -90,7 +87,7 @@ def initialize():
 
         item = random.randint(0, len(objects_images) - 1)
 
-        while objects_dic2[item] in ["boat", "portal", "treasure"]:
+        while objects_dic2[item] in ["boat", "portal", "treasure", "pear"]:
             item = random.randint(0, len(objects_images) - 1)
 
         objects_map[random_y][random_x] = item
@@ -151,15 +148,40 @@ def initialize():
 
     pre_blocks = []
 
+    animal_map = []
+    for y in range(14):
+        animal_map.append([])
+        for x in range(18):
+            animal_map[len(animal_map) - 1].append("")
+
+    for _ in range(random.choice([random.randint(7, 15)])):
+        random_x = random.randint(1, 17)
+        random_y = random.randint(1, 13)
+
+        while (blocks_map[random_y][random_x] == 3)\
+                or (objects_map[random_y][random_x] != "")\
+                or (scenery_map[random_y][random_x] != ""):
+            random_x = random.randint(1, 17)
+            random_y = random.randint(1, 13)
+
+        animal_map[random_y][random_x] = Animal(random_x, random_y, random.randint(1, 2))
+
     return player_direction, player_x, player_y, \
            shop, inventory,\
            blocks_map, objects_map, scenery_map, \
-           health, hammer_death, life_counter, run, pre_blocks
+           health, hammer_death, life_counter, run, pre_blocks, \
+           animal_map
 
 
-player_direction, player_x, player_y, shop, inventory, blocks_map, objects_map, scenery_map, health, hammer_death, life_counter, run, pre_blocks = initialize()
+player_direction, player_x, player_y, shop, inventory, blocks_map, objects_map, scenery_map, health, hammer_death, life_counter, run, pre_blocks, animal_map = initialize()
 
 current_storage = "inventory"
+
+animala_timer = 0
+
+pygame.mixer.init()
+pygame.mixer.music.load(sound_dir + "theme.wav")
+pygame.mixer.music.play(-1)
 
 while run:
     my_screen.fill((0, 0, 0))
@@ -237,6 +259,13 @@ while run:
                 player_x += 1
                 player_direction = "right"
 
+            if inventory["hammer"][2] is False and animal_map[player_y][player_x] != "":
+                health -= 10
+
+            elif inventory["hammer"][2] is True and animal_map[player_y][player_x] != "":
+                animal_map[player_y][player_x] = ""
+                inventory["meat"][1] += 1
+
             if scenery_map[player_y][player_x] != "" and inventory["hammer"][2] is True:
                 scenery_map[player_y][player_x] = ""
                 hammer_death -= 1
@@ -264,13 +293,25 @@ while run:
                     inventory[objects_dic2[objects_map[player_y][player_x]]][1] += 1
                 objects_map[player_y][player_x] = ""
 
+            if event.key == K_BACKSLASH\
+                and inventory[objects_dic2[selected_inventory_item]][1] > 0\
+                and objects_map[player_y][player_x] == "":
+                inventory[objects_dic2[selected_inventory_item]][1] -= 1
+                objects_map[player_y][player_x] = selected_inventory_item
+
+    for y in range(0, 13):
+        for x in range(0, 17):
+            animal = animal_map[y][x]
+            if animal != "":
+                animal.update(blocks_map, objects_map, scenery_map, animal_map)
+
     # DRAWING MAP
 
-    draw_map(blocks_map, objects_map, scenery_map, player_images, player_direction, player_x, player_y)
+    draw_map(blocks_map, objects_map, scenery_map, player_images, player_direction, player_x, player_y, animal_map)
 
     # MANAGING INVENTORY
 
-    inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks = manage_activated_items(inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, pre_player_x, pre_player_y, initialize)
+    inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, animal_map = manage_activated_items(inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, pre_player_x, pre_player_y, animal_map, initialize)
 
     player_images = draw_inventory(current_storage, inventory, selected_inventory_item, health, player_images)
 
@@ -288,4 +329,5 @@ while run:
     if health <= 0:
         run = False
 
+    pygame.time.delay(100)
     pygame.display.update()

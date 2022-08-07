@@ -59,3 +59,14 @@ objects_dic2 = {0: "boat",
                7: "treasure"}
 
 scenery_images = {0: "tree.png"}
+
+animal_images = {1: {"down": "chick_front.png",
+                      "up": "chick_back.png",
+                      "right": "chick_right.png",
+                      "left": "chick_right.png"},
+                  2: {"down": "goat_front.png",
+                      "up": "goat_back.png",
+                      "right": "goat_right.png",
+                      "left": "goat_left.png"}}
+animal_dic = {"chick": 1}
+animal_dic2 = {1: "chick"}

@@ -89,7 +89,7 @@ def draw_inventory(current_storage, inventory, selected_inventory_item, health, 
     return player_images
 
 
-def manage_activated_items(inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, pre_player_x, pre_player_y, initialize):
+def manage_activated_items(inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, pre_player_x, pre_player_y, animal_map, initialize):
     for item in objects_dic:
         if item in ["pear", "meat"]:
             if inventory[item][2] is True and health < 100:
@@ -105,7 +105,7 @@ def manage_activated_items(inventory, health, player_direction, player_x, player
                     pre_blocks = []
         elif item == "portal":
             if inventory[item][2] is True:
-                player_direction, player_x, player_y, shop, inventory, blocks_map, objects_map, scenery_map, health, hammer_death, life_counter, run, pre_blocks = initialize()
+                player_direction, player_x, player_y, shop, inventory, blocks_map, objects_map, scenery_map, health, hammer_death, life_counter, run, pre_blocks, animal_map = initialize()
                 inventory[item][2] = False
 
         elif item == "treasure":
@@ -117,8 +117,8 @@ def manage_activated_items(inventory, health, player_direction, player_x, player
                         for item2 in inventory:
                             if item2 not in ["boat", "portal", "treasure"]:
                                 inventory[item2][1] += 5
-                            currency = random.choice(["coin", "log"])
-                            inventory[currency][1] += 10
+                        currency = random.choice(["coin", "log"])
+                        inventory[currency][1] += 5
                     elif major is True:
                         item2 = random.choice(["boat", "treasure", "portal"])
                         if item2 != "treasure":
@@ -155,38 +155,21 @@ def manage_activated_items(inventory, health, player_direction, player_x, player
                             inventory["portal"][1] = 0
             inventory[item][2] = False
 
-    return inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks
+    return inventory, health, player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map, hammer_death, life_counter, run, pre_blocks, animal_map
 
 
-def draw_map(blocks_map, objects_map, scenery_map, player_images, player_direction, player_x, player_y):
-        y = -1
-        for row in blocks_map:
-            y += 1
-            x = -0
-            for block in row:
-                x += 1
-                if block != "":
-                    draw_image(block_images[block], mid_x_coord + x*TILE, mid_y_coord + y*TILE, img_dir, my_screen)
-
-        y = -1
-        for row in objects_map:
-            y += 1
-            x = -0
-            for object in row:
-                x += 1
-                if object != "":
-                    draw_image(objects_images[object], mid_x_coord + x * TILE, mid_y_coord + y * TILE, img_dir, my_screen,
-                               1)
-
-        y = -1
-        for row in scenery_map:
-            y += 1
-            x = -0
-            for scenery in row:
-                x += 1
-                if scenery != "":
-                    draw_image(scenery_images[scenery], mid_x_coord + x*TILE, mid_y_coord + y*TILE, img_dir, my_screen, 1, 1)
-
-            if player_y == y:
-                draw_image(player_images[player_direction], mid_x_coord + player_x * TILE + TILE,
-                           mid_y_coord + player_y * TILE, img_dir, my_screen, 1)
+def draw_map(blocks_map, objects_map, scenery_map, player_images, player_direction, player_x, player_y, animal_map):
+    for y in range(0, 14):
+        for x in range(0, 18):
+            if blocks_map[y][x] != "":
+                draw_image(block_images[blocks_map[y][x]], mid_x_coord + (x + 1)*TILE, mid_y_coord + y*TILE, img_dir, my_screen)
+            if animal_map[y][x] != "":
+                animal_map[y][x].draw()
+            if objects_map[y][x] != "":
+                draw_image(objects_images[objects_map[y][x]], mid_x_coord + (x + 1) * TILE, mid_y_coord + y * TILE, img_dir, my_screen,
+                           1)
+            if scenery_map[y][x] != "":
+                draw_image(scenery_images[scenery_map[y][x]], mid_x_coord + (x + 1)*TILE, mid_y_coord + y*TILE, img_dir, my_screen, 1, 1)
+        if player_y == y:
+            draw_image(player_images[player_direction], mid_x_coord + (player_x + 1)* TILE,
+                       mid_y_coord + player_y * TILE, img_dir, my_screen, 1)
