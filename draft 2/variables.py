@@ -58,4 +58,4 @@ objects_dic2 = {0: "boat",
                6: "portal",
                7: "treasure"}
 
-scenery_images = {0: "tree.png"}
+scenery_images = {0: "tree.png"} #
