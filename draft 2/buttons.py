@@ -9,7 +9,7 @@ from basics import *
 class Button:
     def __init__(self, img, x, y, my_dir, my_mouse, my_screen, strictness=0, alter=0):
         self.img = img
-        self.x = x #
+        self.x = x
         self.y = y
 
         self.pre_img = pygame.image.load(my_dir + img).convert()
