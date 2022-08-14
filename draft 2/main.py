@@ -10,6 +10,7 @@ from buttons import *
 from variables import *
 from complex import *
 from animals import *
+from game_state import *
 
 
 # Non-Constant Variables
@@ -48,6 +49,8 @@ player_direction, player_x, player_y, shop, blocks_map, objects_map, scenery_map
 
 current_storage = "inventory"
 
+my_game_state = State(["start", "play", "end"])
+
 # Play theme Sound
 
 pygame.mixer.init()
@@ -57,41 +60,53 @@ pygame.mixer.music.play(-1)
 while run:
     my_screen.fill((0, 0, 0))
 
-    pre_player_x = player_x
-    pre_player_y = player_y
+    if my_game_state.current == "start":
+        draw_rect(my_screen, WIDTH/2, HEIGHT/2 - 90, 500, 5, "dark green", 0)
+        draw_text("DEEP FOREST", WIDTH/2, HEIGHT/2 - 50, my_screen, 100, "dark green", "DIN Condensed")
+        draw_text("press SPACE to start", WIDTH/2, HEIGHT/2 + 40, my_screen, 30, "dark green", "DIN Condensed")
+        draw_rect(my_screen, WIDTH/2, HEIGHT/2 + 100, 500, 5, "dark green", 0)
 
-    # Update all Events
+        for event in pygame.event.get():
+            if event.type == KEYDOWN:
+                if event.key == K_SPACE:
+                    my_game_state.update()
 
-    inventory, selected_inventory_item, \
-    shop, selected_shop_item, selected_shop_deal, \
-    current_storage, \
-    player_direction, player_x, player_y, pre_player_x, pre_player_y, \
-    blocks_map, objects_map, animal_map, scenery_map, \
-    hammer_death, life_counter, run, pre_blocks, health  = update_window(inventory, selected_inventory_item,
-                                                                      shop, selected_shop_item, selected_shop_deal,
-                                                                      current_storage,
-                                                                      player_direction, player_y, player_x, pre_player_x, pre_player_y,
-                                                                      animal_map, scenery_map, blocks_map, objects_map,
-                                                                      hammer_death, life_counter, run, pre_blocks, health)
+    elif my_game_state.current == "play":
+        pre_player_x = player_x
+        pre_player_y = player_y
 
-    # Draw entire Window
+        # Update all Events
 
-    player_images = draw_window(inventory, selected_inventory_item,
-                                shop, selected_shop_deal, selected_shop_item,
-                                current_storage,
-                                player_images, player_direction, player_x, player_y,
-                                blocks_map, objects_map, scenery_map, animal_map,
-                                health)
+        inventory, selected_inventory_item, \
+        shop, selected_shop_item, selected_shop_deal, \
+        current_storage, \
+        player_direction, player_x, player_y, pre_player_x, pre_player_y, \
+        blocks_map, objects_map, animal_map, scenery_map, \
+        hammer_death, life_counter, run, pre_blocks, health  = update_window(inventory, selected_inventory_item,
+                                                                          shop, selected_shop_item, selected_shop_deal,
+                                                                          current_storage,
+                                                                          player_direction, player_y, player_x, pre_player_x, pre_player_y,
+                                                                          animal_map, scenery_map, blocks_map, objects_map,
+                                                                          hammer_death, life_counter, run, pre_blocks, health)
 
-    # other...
+        # Draw entire Window
 
-    life_counter += 1
-    if life_counter == 180:
-        health -= 10
-        life_counter = 0
+        player_images = draw_window(inventory, selected_inventory_item,
+                                    shop, selected_shop_deal, selected_shop_item,
+                                    current_storage,
+                                    player_images, player_direction, player_x, player_y,
+                                    blocks_map, objects_map, scenery_map, animal_map,
+                                    health)
 
-    if health <= 0:
-        run = False
+        # other...
+
+        life_counter += 1
+        if life_counter == 180:
+            health -= 10
+            life_counter = 0
+
+        if health <= 0:
+            run = False
 
     pygame.time.delay(100)
     pygame.display.update()

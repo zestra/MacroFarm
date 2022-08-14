@@ -26,10 +26,10 @@ main_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 2/"
 img_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 2/images/"
 sound_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 2/sounds/"
 
-block_images = {0: "dirt_pixel.png",
-                1: "grass_pixel.png",
-                2: "stone_pixel.png",
-                3: "water_pixel.png"}
+block_images = {0: "dirt.png",
+                1: "grass.png",
+                2: "stone.png",
+                3: "water.png"}
 
 objects_images = {0: "boat.png",
                   1: "coin.png",

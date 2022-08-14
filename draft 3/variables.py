@@ -1,0 +1,6 @@
+animal_images
+mid_x_coord
+TILE
+mid_y_coord
+img_dir
+my_screen
