@@ -55,4 +55,9 @@ In draft 5, currently in development, I hope to introduce some more features to 
   • Windows, introducing a guide and menu to the game. The game will expecially need a guide, because the instructions required to plant a                     
     tree or reproduce an animal is hard to communicate at the moment.
     
-  • More items and scenery, like a 
+  • More items and scenery, like tools to cut down grass, build rivers, catch animals, and a diverse number of trees, each providing        
+    different rewards.
+  
+  and more
+
+I'd also appreciate a parterner, if they are interested in the project. And if you just happen to appreciate this game, please click on the star button, so that I can know that some people like my game.
