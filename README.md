@@ -30,6 +30,9 @@ In draft 5, currently in development, I hope to introduce some more features to 
   • More items and scenery, like tools to cut down grass, build rivers, catch animals, and a diverse number of trees, each providing        
     different rewards.
   
+  • A much more organised folder when coding, because as my father keeps pointing out, I have *zero* comments in my code, and I find my 
+    folders pretty ugly, unlike lots of programmers who are just *prefect* in making brief comments and organized folders.
+    
   and more
 
 I'd also appreciate a parterner, if they are interested in the project. And if you just happen to appreciate this game, please click on the star button, so that I can know that some people appreciate my game.
