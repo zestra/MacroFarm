@@ -60,4 +60,6 @@ In draft 5, currently in development, I hope to introduce some more features to 
   
   and more
 
-I'd also appreciate a parterner, if they are interested in the project. And if you just happen to appreciate this game, please click on the star button, so that I can know that some people like my game.
+I'd also appreciate a parterner, if they are interested in the project. And if you just happen to appreciate this game, please click on the star button, so that I can know that some people appreciate my game.
+
+(Sorry that I mentioned "appreciate" three times in two sentences, but its the only word I know with just the right meaning and intensity.)
