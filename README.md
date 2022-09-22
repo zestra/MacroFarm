@@ -1,4 +1,4 @@
-# Zestras-Adventure-Game
+# MacroFarm
 
 Welcome to my adventure game (or drafts of it)!
 
