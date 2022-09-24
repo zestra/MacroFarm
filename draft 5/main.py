@@ -33,7 +33,7 @@ class Animal:
             for path in paths:
                 if (1 <= path[0] <= map_width - 2) and (1 <= path[1] <= map_height - 2):
                     if (blocks_map[path[1]][path[0]] != 3) \
-                            and (objects_map[path[1]][path[0]] in ["", 4]) \
+                            and (objects_map[path[1]][path[0]] in ["", objects_decod_dic["pear"], objects_decod_dic["cherry"]]) \
                             and (scenery_map[path[1]][path[0]] == "") \
                             and (animal_map[path[1]][path[0]] == "") \
                             and ((path[0] == player_x and path[1] == player_y) is False):
@@ -257,7 +257,8 @@ objects_img_dic = {0: "coin.png",
                    4: "pear.png",
                    5: "fence.png",
                    6: "nut.png",
-                   7: "wateringcan.png"}
+                   7: "wateringcan.png",
+                   8: "cherry.png"}
 
 objects_cod_dic = {0: "coin",
                    1: "axe",
@@ -266,7 +267,8 @@ objects_cod_dic = {0: "coin",
                    4: "pear",
                    5: "fence",
                    6: "nut",
-                   7: "wateringcan"}
+                   7: "wateringcan",
+                   8: "cherry"}
 
 objects_decod_dic = reverse_dic(objects_cod_dic)
 
@@ -422,6 +424,7 @@ inventory = {  # name: [image, no., activated?]
     "log": [objects_img_dic[objects_decod_dic["log"]], 12, False],
     "meat": [objects_img_dic[objects_decod_dic["meat"]], 8, False],
     "pear": [objects_img_dic[objects_decod_dic["pear"]], 14, False],
+    "cherry": [objects_img_dic[objects_decod_dic["cherry"]], 10, False],
     "nut": [objects_img_dic[objects_decod_dic["nut"]], 2, False],
     "axe": [objects_img_dic[objects_decod_dic["axe"]], 4, False],
     "wateringcan": [objects_img_dic[objects_decod_dic["wateringcan"]], 6, False],
@@ -439,6 +442,7 @@ shop = {  # item: [(in coins), image]
     "log": [2, objects_img_dic[objects_decod_dic["log"]]],
     "meat": [1, objects_img_dic[objects_decod_dic["meat"]]],
     "pear": [2, objects_img_dic[objects_decod_dic["pear"]]],
+    "cherry": [3, objects_img_dic[objects_decod_dic["cherry"]]],
     "nut": [2, objects_img_dic[objects_decod_dic["nut"]]]}
 shop_cod_dic = keys_dic(shop)
 shop_decod_dic = reverse_dic(shop_cod_dic)
@@ -544,34 +548,37 @@ def draw_guide_lines():
 
 def draw_inventory():
     if current_storage == "inventory":
-        draw_rect(my_screen, mid_x_coord - 150 + 10 - 25, HEIGHT / 2, 275, 700, (28, 28, 28), 0)
-
-    draw_text("INVENTORY", mid_x_coord - 150 - 25, mid_y_coord, my_screen, 45, "white", "din condensed")
+        draw_rect(my_screen, mid_x_coord - 150 + 10 - 25, HEIGHT / 2, 275, 800, (28, 28, 28), 0)
 
     lower_y = 50
     index_max = 3
     index = 0
     for y in range(0, len(inventory)):
+        draw_rect(my_screen, mid_x_coord - 150 + 10 - 25, 50, 275, 240, (28, 28, 28), 0)
+
         if inventory[inventory_cod_dic[y]][2] is True:
             draw_image("highlight.png", 2 * TILE - 25 + index * (TILE + 40),
-                       mid_y_coord + (y - index) * (TILE + (40 / (index_max ** 2))) + 90 + lower_y, img_dir, my_screen,
+                       mid_y_coord + (y - int(selected_inventory_item/3) - index) * (TILE + (40 / (index_max ** 2))) + 90 + lower_y, img_dir, my_screen,
                        0, 0)
+
         draw_image(inventory[inventory_cod_dic[y]][0], 2 * TILE - 10 - 25 + index * (TILE + 40),
-                   mid_y_coord + (y - index) * (TILE + (40 / (index_max ** 2))) + 110 + lower_y, img_dir, my_screen,
+                   mid_y_coord + (y - int(selected_inventory_item/3) - index) * (TILE + (40 / (index_max ** 2))) + 110 + lower_y, img_dir, my_screen,
                    1)
         draw_text(str(inventory[inventory_cod_dic[y]][1]), 2 * TILE + 20 - 25 + index * (TILE + 40),
-                  mid_y_coord + (y - index) * (TILE + (40 / (index_max ** 2))) + 70 + lower_y, my_screen, 20, "red",
+                  mid_y_coord + (y - int(selected_inventory_item/3) - index) * (TILE + (40 / (index_max ** 2))) + 70 + lower_y, my_screen, 20, "red",
                   "DIN condensed")
         draw_rect(my_screen, 2 * TILE - 25 + index * (TILE + 40),
-                  mid_y_coord + (y - index) * (TILE + (40 / (index_max ** 2))) + 90 + lower_y, 60, 60)
+                  mid_y_coord + (y - int(selected_inventory_item/3) - index) * (TILE + (40 / (index_max ** 2))) + 90 + lower_y, 60, 60)
         if y == selected_inventory_item:
             draw_image("selection.png", 2 * TILE - 25 + index * (TILE + 40),
-                       mid_y_coord + (y - index) * (TILE + (40 / (index_max ** 2))) + 120 + lower_y, img_dir, my_screen,
+                       mid_y_coord + (y - int(selected_inventory_item/3) - index) * (TILE + (40 / (index_max ** 2))) + 120 + lower_y, img_dir, my_screen,
                        1, 1)
 
         index += 1
         if index == index_max:
             index = 0
+
+        draw_text("INVENTORY", mid_x_coord - 150 - 25, mid_y_coord, my_screen, 45, "white", "din condensed")
 
 
 def draw_health():
@@ -993,11 +1000,17 @@ while run:
 
         if scenery_map[player_y][player_x] != "" \
                 and inventory["axe"][2] is True:
-            scenery_map[player_y][player_x] = ""
-            objects_map[player_y][player_x] = objects_decod_dic["log"]
+
+            if scenery_cod_dic[scenery_map[player_y][player_x]] == "cherry_tree":
+                number = random.choice([0, 1, 2, 2, 2, 3, 3, 4])
+                inventory["cherry"][1] += number
+
             chances = random.randint(1, 3)
             if chances == 2:
                 inventory["nut"][1] += 1
+
+            scenery_map[player_y][player_x] = ""
+            objects_map[player_y][player_x] = objects_decod_dic["log"]
 
             if hammer_death == 0:
                 hammer_death = 3
@@ -1046,5 +1059,5 @@ while run:
         money_owed += 1
         money_timer = 75
 
-    pygame.time.delay(50)
+    pygame.time.delay(15)
     pygame.display.update()
