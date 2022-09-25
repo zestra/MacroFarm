@@ -2,39 +2,7 @@
 
 Welcome to my adventure game (or drafts of it)!
 
-# Latest ScreenShots
+# Draft 5 (New!)
+v5 contains the next generation of MacroFarm. The update includes a brand new way of roaming the map. Now, your player is always centred, giving you the liberty of seeing him and the obstacles, items, and animals around him clearly. The inventory has also been updated, so that you can now scroll through it to see everything neatly. Version 5 also introduces a guide, which you can get hints from when you have forgotten something or want to try something new. Finally, for programmers interested in looking through the code, there are comments to help them out and the code has also been rearranged neatly. Welcome to version 5 of MacroFarm.
 
-## Draft 4 (New!)
-presents a recently updated version of the game. The update includes the introduction to animal reproduction, where animals, when given 3 pears, reproduce. It also contains the ability to grow trees from seeds when you provide it 2 watercans. There are also 2 new buildings: a well where you can collect water and a farm where you can transform the scene and yourself from a farmer in the forest, to a farmer in the desert. Lastly, old graphics have been updated, and new ones reproduced. Welcome to version number 4.
-
-![](https://user-images.githubusercontent.com/104675837/191535105-35fbaec2-2040-469a-9ff0-0be0cadedeea.jpeg)
-
-### How to Play
-
-Press the ARROWS to move in the corresponding direction of the arrow.
-Press TAB to select an item in the inventory.
-Press BACKSPACE to select an item in the shop.
-Press RETURN to activate/buy an item.
-Press SPACE to pick up an item.
-Press BACKLASH to drop an item.
-
-## Notes on Continuation of this Project
-
-In draft 5, currently in development, I hope to introduce some more features to the game, including:
-
-  • (Done!) A scrollable inventory, with groups like action items, food, etc, for when more items are invented.
-  
-  • Windows, introducing a guide and menu to the game. The game will expecially need a guide, because the instructions required to plant a                     
-    tree or reproduce an animal is hard to communicate at the moment.
-    
-  • More items and scenery, like tools to cut down grass, build rivers, catch animals, and a diverse number of trees, each providing        
-    different rewards.
-  
-  • A much more organised folder when coding, because as my father keeps pointing out, I have *zero* comments in my code, and I find my 
-    folders pretty ugly, unlike lots of programmers who are just *prefect* in making brief comments and organized folders.
-    
-  and more
-
-I'd also appreciate a partner, if they are interested in the project. And if you just happen to appreciate this game, please click on the star button, so that I can know that some people appreciate my game.
-
-(Sorry that I mentioned "appreciate" three times in two sentences, but its the only word I know with just the right meaning and intensity.)
+![Image 25-09-2022 at 19 27](https://user-images.githubusercontent.com/104675837/192151585-dc1b8668-6fa8-4886-b446-2b53d80f52a5.jpeg)
