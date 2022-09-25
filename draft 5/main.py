@@ -3,6 +3,7 @@ from pygame.locals import *
 from sys import exit
 
 import random
+import math
 
 from basics import *
 
@@ -57,7 +58,7 @@ class Animal:
 
                 animal.reproduction_count = self.reproduction_count
 
-                if objects_map[animal.y][animal.x] == objects_decod_dic["pear"]:
+                if objects_map[animal.y][animal.x] in [objects_decod_dic["pear"], objects_decod_dic["cherry"]]:
                     animal.reproduction_count += 1
                     objects_map[animal.y][animal.x] = ""
 
@@ -143,6 +144,8 @@ mid_x_coord = (WIDTH / 2) - 9 * TILE
 mid_y_coord = (HEIGHT / 2) - 7.5 * TILE
 
 ## Scene Variables
+
+in_action = False  # This tells us whether the player is playing or reading the guide.
 
 health = 100  # This tracks the player's health.
 health_timer = 80  # Every 80s, the player's health will go down by 10.
@@ -532,20 +535,6 @@ def draw_map():
         block_y += 1
 
 
-def draw_guide_lines():
-    block_y = 0
-    for y in range(visible_height_index, visible_height_index + visible_height_window - 1):
-        draw_text(str(y), mid_x_coord - 10, mid_y_coord + (block_y + 0.6) * TILE, my_screen, 25, "green",
-                  "Din Condensed")
-        block_y += 1
-
-    block_x = 0
-    for x in range(visible_width_index, visible_width_index + visible_width_window - 1):
-        draw_text(str(x), mid_x_coord + (block_x + 1) * TILE, mid_y_coord + (visible_height_window) * TILE - 10,
-                  my_screen, 25, "green", "Din Condensed")
-        block_x += 1
-
-
 def draw_inventory():
     if current_storage == "inventory":
         draw_rect(my_screen, mid_x_coord - 150 + 10 - 25, HEIGHT / 2, 275, 800, (28, 28, 28), 0)
@@ -718,6 +707,10 @@ pygame.mixer.init()
 pygame.mixer.music.load(sound_dir + "theme.wav")
 pygame.mixer.music.play(-1)
 
+guide_surface = image_to_surface("guide.png", img_dir, True)
+
+reader_y = 0
+
 while run:
     my_screen.fill((0, 0, 0))
 
@@ -728,336 +721,388 @@ while run:
 
     pressed_keys = pygame.key.get_pressed()
 
-    ### Moving Player, Window, and Animals
+    if in_action:
+        ### Moving Player, Window, and Animals
 
-    ## Move Player
+        ## Move Player
 
-    pre_player_x = player_x
-    pre_player_y = player_y
+        pre_player_x = player_x
+        pre_player_y = player_y
 
-    if pressed_keys[K_RIGHT]:
-        if player_x < map_width - 2:
-            player_x += 1
-        player_direction = "right"
+        if pressed_keys[K_RIGHT]:
+            if player_x < map_width - 2:
+                player_x += 1
+            player_direction = "right"
 
-    elif pressed_keys[K_LEFT]:
-        if player_x > 0:
-            player_x -= 1
-        player_direction = "left"
+        elif pressed_keys[K_LEFT]:
+            if player_x > 0:
+                player_x -= 1
+            player_direction = "left"
 
-    elif pressed_keys[K_UP]:
-        if player_y > 0:
-            player_y -= 1
-        player_direction = "up"
+        elif pressed_keys[K_UP]:
+            if player_y > 0:
+                player_y -= 1
+            player_direction = "up"
 
-    elif pressed_keys[K_DOWN]:
-        if player_y < map_height - 2:
-            player_y += 1
-        player_direction = "down"
+        elif pressed_keys[K_DOWN]:
+            if player_y < map_height - 2:
+                player_y += 1
+            player_direction = "down"
 
-    if pressed_keys[K_RIGHT] or pressed_keys[K_LEFT] \
-            or pressed_keys[K_UP] or pressed_keys[K_DOWN]:
-        if player_scene == 0:
-            player_scene = 1
+        if pressed_keys[K_RIGHT] or pressed_keys[K_LEFT] \
+                or pressed_keys[K_UP] or pressed_keys[K_DOWN]:
+            if player_scene == 0:
+                player_scene = 1
 
-    ## Update the Player image scene: e.i. 1front_1, 1front_2, 1front_3, etc.
+        ## Update the Player image scene: e.i. 1front_1, 1front_2, 1front_3, etc.
 
-    if player_scene != 0:
-        player_scene += 1
-    if player_scene == len(player_images[player_direction]) - 1:
-        player_scene = 0
+        if player_scene != 0:
+            player_scene += 1
+        if player_scene == len(player_images[player_direction]) - 1:
+            player_scene = 0
 
-    ## Move Animals
+        ## Move Animals
 
-    for y in range(0, len(animal_map)):
-        for x in range(0, len(animal_map[0])):
-            if animal_map[y][x] != "":
-                animal_map[y][x].update()
+        for y in range(0, len(animal_map)):
+            for x in range(0, len(animal_map[0])):
+                if animal_map[y][x] != "":
+                    animal_map[y][x].update()
 
-    ### Update Inventory, Stores, and Items
+        ### Update Inventory, Stores, and Items
 
-    ## Picking up an Item | or Entering a Building
+        ## Picking up an Item | or Entering a Building
 
-    if pressed_keys[K_SPACE]:  # If player attempt to pick something up,
+        if pressed_keys[K_SPACE]:  # If player attempt to pick something up,
 
-        if objects_map[player_y][player_x] != "":  # and the something was an item,
+            if objects_map[player_y][player_x] != "":  # and the something was an item,
 
-            # then remove the item from the map, and add it to the inventory.
+                # then remove the item from the map, and add it to the inventory.
 
-            if objects_map[player_y][player_x] in objects_cod_dic:
-                # If the item is not a nut, then set the selected inventory item to it the
-                # normal way.
-                selected_inventory_item = inventory_decod_dic[objects_cod_dic[objects_map[player_y][player_x]]]
-            else:
-                # Else, since the nut is a special class, convert the class object into an item,
-                # and remove the nut from the map. Then set it to the selected inventory item.
-                nuts.remove(objects_map[player_y][player_x])
-                selected_inventory_item = inventory_decod_dic["nut"]
-
-            if selected_inventory_item == inventory_decod_dic["meat"] and health < 100:
-                # If the item is meat, and the player's health is low, then automatically
-                # eat the meat and raise the health bar.
-                health += 10
-            else:
-                # Otherwise, just add the item to the inventory storage.
-                inventory[inventory_cod_dic[selected_inventory_item]][1] += 1
-
-            objects_map[player_y][player_x] = ""  # Finally, remove the item from the map.
-
-        if animal_map[player_y][player_x] != "":  # If however, the player attempted
-            # to pick up an animal, then add the animal to the inventory storage and
-            # update the selected inventory item/animal. Lastly, remove the animal
-            # from the board.
-
-            inventory_keys = list(inventory.keys())
-            index = 0
-            while inventory_keys[index] != animal_map[player_y][player_x].animal:
-                index += 1
-            selected_inventory_item = index
-
-            inventory[animal_map[player_y][player_x].animal][1] += 1
-            animal_map[player_y][player_x] = ""
-
-        elif building_map[player_y][player_x] != "":  # Otherwise, the player was
-            # instead, trying to enter a building.
-
-            current_storage = building_code_dic[building_map[player_y][player_x]]  # Set the current
-            # building variable to the active building.
-            in_shop = True  # Set inside-shop to True.
-
-            if current_storage == "farm":  # If the building was the farm,
-                # then update the season: forest, desert, arctic. To do this,
-                # change the tree images, the block images, and the player images.
-
-                season_type += 1
-                if season_type == 3:
-                    season_type = 0
-
-                if season_type == 0:  # This finds the current tree and block image types.
-                    tree_type = "norm_tree"
-                    block_type = "grass"
-                elif season_type == 1:
-                    tree_type = "autumn_tree"
-                    block_type = "ground"
-                elif season_type == 2:
-                    tree_type = "snow_tree"
-                    block_type = "snow"
-
-                for y in range(0, map_height - 1):  # And then this sets the tree and
-                    # block images to the correct image types.
-
-                    for x in range(0, map_width - 1):
-                        if blocks_map[y][x] != "":
-                            blocks_map[y][x] = blocks_decod_dic[block_type]
-                        if scenery_map[y][x] != "":
-                            scenery_map[y][x] = scenery_decod_dic[tree_type]
-                            if season_type == 0:
-                                scenery_map[y][x] = scenery_decod_dic[random.choice(["norm_tree", "norm_tree", "norm_tree", "norm_tree", "cherry_tree"])]
-
-                # These two paragraphs below set the player images to match the season.
-
-                player_images = {
-                    "left": ["left0.png", "left1.png", "left2.png", "left3.png", "left4.png"],
-                    "right": ["right0.png", "right1.png", "right2.png", "right3.png", "right4.png"],
-                    "up": ["back0.png", "back1.png", "back2.png", "back3.png", "back4.png"],
-                    "down": ["front0.png", "front1.png", "front2.png", "front3.png", "front4.png"]}
-
-                for direction in player_images:
-                    index = 0
-                    for stage in player_images[direction]:
-                        player_images[direction][index] = str(season_type + 1) + \
-                                                          player_images[direction][index]
-                        index += 1
-
-    ## Drop an Item
-
-    if pressed_keys[K_BACKSLASH] \
-            and inventory[inventory_cod_dic[selected_inventory_item]][1] > 0 \
-            and (objects_map[player_y][player_x] == "" or objects_map[player_y][player_x] in nuts) \
-            and animal_map[player_y][player_x] == "":
-        if objects_map[player_y][player_x] in nuts and inventory_cod_dic[selected_inventory_item] == "wateringcan":
-            objects_map[player_y][player_x].grow()
-            inventory[inventory_cod_dic[selected_inventory_item]][1] -= 1
-        else:
-            if objects_map[player_y][player_x] == "":
-                inventory[inventory_cod_dic[selected_inventory_item]][1] -= 1
-                if inventory_cod_dic[selected_inventory_item] in ["goat", "chick", "pig", "sheep"]:
-                    animal_map[player_y][player_x] = Animal(player_x, player_y, animal_decod_dic[
-                        inventory_cod_dic[selected_inventory_item]])
+                if objects_map[player_y][player_x] in objects_cod_dic:
+                    # If the item is not a nut, then set the selected inventory item to it the
+                    # normal way.
+                    selected_inventory_item = inventory_decod_dic[objects_cod_dic[objects_map[player_y][player_x]]]
                 else:
-                    objects_map[player_y][player_x] = objects_decod_dic[
-                        inventory_cod_dic[selected_inventory_item]]
-                    if inventory_cod_dic[selected_inventory_item] == "nut":
-                        objects_map[player_y][player_x] = Nut(player_x, player_y)
-                        nuts.append(objects_map[player_y][player_x])
+                    # Else, since the nut is a special class, convert the class object into an item,
+                    # and remove the nut from the map. Then set it to the selected inventory item.
+                    nuts.remove(objects_map[player_y][player_x])
+                    selected_inventory_item = inventory_decod_dic["nut"]
 
-    ## Buying and Selecting Items/Animals in Stores
+                if selected_inventory_item == inventory_decod_dic["meat"] and health < 100:
+                    # If the item is meat, and the player's health is low, then automatically
+                    # eat the meat and raise the health bar.
+                    health += 10
+                else:
+                    # Otherwise, just add the item to the inventory storage.
+                    inventory[inventory_cod_dic[selected_inventory_item]][1] += 1
 
-    if pressed_keys[K_BACKSPACE] and in_shop is True:  # If the player is selecting an item in the store,
+                objects_map[player_y][player_x] = ""  # Finally, remove the item from the map.
 
-        current_storage = building_code_dic[building_map[player_y][player_x]]  # get the current store.
+            if animal_map[player_y][player_x] != "":  # If however, the player attempted
+                # to pick up an animal, then add the animal to the inventory storage and
+                # update the selected inventory item/animal. Lastly, remove the animal
+                # from the board.
 
-        if current_storage == "shop":  # If the store is the local shop, let the player go through the list
-            # or menu of items.
-            selected_shop_item += 1
-            if selected_shop_item == len(shop):
-                selected_shop_item = 0
-        elif current_storage == "carpenter":  # Similarly, if the store is the carpenter, let the player dive
-            # through the options.
-            selected_shop_item += 1
-            if selected_shop_item >= len(carpenter):
-                selected_shop_item = 0
-        elif current_storage == "bank":  # In the bank you can only do one thing, collect your earned money,
-            # and so there is no list of items to go through. So, pass.
-            pass
-        elif current_storage == "trade":  # As with the shop and carpenter, let the player look at the menu.
-            selected_shop_item += 1
-            if selected_shop_item >= len(trade):
-                selected_shop_item = 0
-        elif current_storage == "well":  # As with the bank, you can only collect water, so pass.
-            pass
+                inventory_keys = list(inventory.keys())
+                index = 0
+                while inventory_keys[index] != animal_map[player_y][player_x].animal:
+                    index += 1
+                selected_inventory_item = index
 
-    ## Check when Player out of Store
+                inventory[animal_map[player_y][player_x].animal][1] += 1
+                animal_map[player_y][player_x] = ""
 
-    if (player_x, player_y) != (pre_player_x, pre_player_y) \
-            and in_shop is True:
-        in_shop = False
-        current_storage = "inventory"
+            elif building_map[player_y][player_x] != "":  # Otherwise, the player was
+                # instead, trying to enter a building.
 
-    if in_shop is False \
-            and selected_shop_item > 0:
-        selected_shop_item = 0
+                current_storage = building_code_dic[building_map[player_y][player_x]]  # Set the current
+                # building variable to the active building.
+                in_shop = True  # Set inside-shop to True.
 
-    ## Selecting Items in Inventory
+                if current_storage == "farm":  # If the building was the farm,
+                    # then update the season: forest, desert, arctic. To do this,
+                    # change the tree images, the block images, and the player images.
 
-    if pressed_keys[K_TAB]:
-        current_storage = "inventory"
-        selected_inventory_item += 1
-        if selected_inventory_item == len(inventory):
-            selected_inventory_item = 0
+                    season_type += 1
+                    if season_type == 3:
+                        season_type = 0
 
-    ## Activate an Item
+                    if season_type == 0:  # This finds the current tree and block image types.
+                        tree_type = "norm_tree"
+                        block_type = "grass"
+                    elif season_type == 1:
+                        tree_type = "autumn_tree"
+                        block_type = "ground"
+                    elif season_type == 2:
+                        tree_type = "snow_tree"
+                        block_type = "snow"
 
-    if pressed_keys[K_RETURN]:
-        if current_storage == "inventory" and \
-                inventory[inventory_cod_dic[selected_inventory_item]][1] > 0 \
-                and inventory_cod_dic[selected_inventory_item] in ["pear", "meat", "axe"]:
-            if selected_inventory_item not in [inventory_decod_dic["pear"], inventory_decod_dic["meat"]]:
-                inventory[inventory_cod_dic[selected_inventory_item]][2] = True
+                    for y in range(0, map_height - 1):  # And then this sets the tree and
+                        # block images to the correct image types.
+
+                        for x in range(0, map_width - 1):
+                            if blocks_map[y][x] != "":
+                                blocks_map[y][x] = blocks_decod_dic[block_type]
+                            if scenery_map[y][x] != "":
+                                scenery_map[y][x] = scenery_decod_dic[tree_type]
+                                if season_type == 0:
+                                    scenery_map[y][x] = scenery_decod_dic[random.choice(["norm_tree", "norm_tree", "norm_tree", "norm_tree", "cherry_tree"])]
+
+                    # These two paragraphs below set the player images to match the season.
+
+                    player_images = {
+                        "left": ["left0.png", "left1.png", "left2.png", "left3.png", "left4.png"],
+                        "right": ["right0.png", "right1.png", "right2.png", "right3.png", "right4.png"],
+                        "up": ["back0.png", "back1.png", "back2.png", "back3.png", "back4.png"],
+                        "down": ["front0.png", "front1.png", "front2.png", "front3.png", "front4.png"]}
+
+                    for direction in player_images:
+                        index = 0
+                        for stage in player_images[direction]:
+                            player_images[direction][index] = str(season_type + 1) + \
+                                                              player_images[direction][index]
+                            index += 1
+
+        ## Drop an Item
+
+        if pressed_keys[K_BACKSLASH] \
+                and inventory[inventory_cod_dic[selected_inventory_item]][1] > 0 \
+                and (objects_map[player_y][player_x] == "" or objects_map[player_y][player_x] in nuts) \
+                and animal_map[player_y][player_x] == "":
+            if objects_map[player_y][player_x] in nuts and inventory_cod_dic[selected_inventory_item] == "wateringcan":
+                objects_map[player_y][player_x].grow()
                 inventory[inventory_cod_dic[selected_inventory_item]][1] -= 1
             else:
-                if health < 100:
+                if objects_map[player_y][player_x] == "":
+                    inventory[inventory_cod_dic[selected_inventory_item]][1] -= 1
+                    if inventory_cod_dic[selected_inventory_item] in ["goat", "chick", "pig", "sheep"]:
+                        animal_map[player_y][player_x] = Animal(player_x, player_y, animal_decod_dic[
+                            inventory_cod_dic[selected_inventory_item]])
+                    else:
+                        objects_map[player_y][player_x] = objects_decod_dic[
+                            inventory_cod_dic[selected_inventory_item]]
+                        if inventory_cod_dic[selected_inventory_item] == "nut":
+                            objects_map[player_y][player_x] = Nut(player_x, player_y)
+                            nuts.append(objects_map[player_y][player_x])
+
+        ## Buying and Selecting Items/Animals in Stores
+
+        if pressed_keys[K_BACKSPACE] and in_shop is True:  # If the player is selecting an item in the store,
+
+            current_storage = building_code_dic[building_map[player_y][player_x]]  # get the current store.
+
+            if current_storage == "shop":  # If the store is the local shop, let the player go through the list
+                # or menu of items.
+                selected_shop_item += 1
+                if selected_shop_item == len(shop):
+                    selected_shop_item = 0
+            elif current_storage == "carpenter":  # Similarly, if the store is the carpenter, let the player dive
+                # through the options.
+                selected_shop_item += 1
+                if selected_shop_item >= len(carpenter):
+                    selected_shop_item = 0
+            elif current_storage == "bank":  # In the bank you can only do one thing, collect your earned money,
+                # and so there is no list of items to go through. So, pass.
+                pass
+            elif current_storage == "trade":  # As with the shop and carpenter, let the player look at the menu.
+                selected_shop_item += 1
+                if selected_shop_item >= len(trade):
+                    selected_shop_item = 0
+            elif current_storage == "well":  # As with the bank, you can only collect water, so pass.
+                pass
+
+        ## Check when Player out of Store
+
+        if (player_x, player_y) != (pre_player_x, pre_player_y) \
+                and in_shop is True:
+            in_shop = False
+            current_storage = "inventory"
+
+        if in_shop is False \
+                and selected_shop_item > 0:
+            selected_shop_item = 0
+
+        ## Selecting Items in Inventory
+
+        if pressed_keys[K_TAB]:
+            current_storage = "inventory"
+            selected_inventory_item += 1
+            if selected_inventory_item == len(inventory):
+                selected_inventory_item = 0
+
+        ## Activate an Item
+
+        if pressed_keys[K_RETURN]:
+            if current_storage == "inventory" and \
+                    inventory[inventory_cod_dic[selected_inventory_item]][1] > 0 \
+                    and inventory_cod_dic[selected_inventory_item] in ["pear", "meat", "axe"]:
+                if selected_inventory_item not in [inventory_decod_dic["pear"], inventory_decod_dic["meat"]]:
                     inventory[inventory_cod_dic[selected_inventory_item]][2] = True
                     inventory[inventory_cod_dic[selected_inventory_item]][1] -= 1
-        elif current_storage == "shop" and in_shop is True:
-            if shop[shop_cod_dic[selected_shop_item]][0] <= inventory["coin"][1]:
-                inventory[shop_cod_dic[selected_shop_item]][1] += 1
-                inventory["coin"][1] -= shop[shop_cod_dic[selected_shop_item]][0]
+                else:
+                    if health < 100:
+                        inventory[inventory_cod_dic[selected_inventory_item]][2] = True
+                        inventory[inventory_cod_dic[selected_inventory_item]][1] -= 1
+            elif current_storage == "shop" and in_shop is True:
+                if shop[shop_cod_dic[selected_shop_item]][0] <= inventory["coin"][1]:
+                    inventory[shop_cod_dic[selected_shop_item]][1] += 1
+                    inventory["coin"][1] -= shop[shop_cod_dic[selected_shop_item]][0]
 
-        elif current_storage == "carpenter" and in_shop is True:
-            if carpenter[carpenter_cod_dic[selected_shop_item]][0] <= inventory["coin"][1] \
-                    and carpenter[carpenter_cod_dic[selected_shop_item]][1] <= inventory["log"][1]:
-                inventory["coin"][1] -= carpenter[carpenter_cod_dic[selected_shop_item]][0]
-                inventory["log"][1] -= carpenter[carpenter_cod_dic[selected_shop_item]][1]
-                inventory[carpenter_cod_dic[selected_shop_item]][1] += 1
+            elif current_storage == "carpenter" and in_shop is True:
+                if carpenter[carpenter_cod_dic[selected_shop_item]][0] <= inventory["coin"][1] \
+                        and carpenter[carpenter_cod_dic[selected_shop_item]][1] <= inventory["log"][1]:
+                    inventory["coin"][1] -= carpenter[carpenter_cod_dic[selected_shop_item]][0]
+                    inventory["log"][1] -= carpenter[carpenter_cod_dic[selected_shop_item]][1]
+                    inventory[carpenter_cod_dic[selected_shop_item]][1] += 1
 
-        elif current_storage == "bank" and in_shop is True:
-            selected_shop_item = 0
-            inventory["coin"][1] += money_owed
-            money_owed = 0
-            money_timer = 100
-
-        elif current_storage == "trade" and in_shop is True:
-            if inventory[trade_cod_dic[selected_shop_item]][1] > 0:
-                inventory["coin"][1] += trade[trade_cod_dic[selected_shop_item]][0]
-                inventory[trade_cod_dic[selected_shop_item]][1] -= 1
-
-        elif current_storage == "well" and in_shop is True:
-            if inventory["coin"][1] > 0:
+            elif current_storage == "bank" and in_shop is True:
                 selected_shop_item = 0
-                inventory["wateringcan"][1] += 1
-                inventory["coin"][1] -= 1
+                inventory["coin"][1] += money_owed
+                money_owed = 0
+                money_timer = 100
 
-        elif current_storage == "farm" and in_shop is True:
-            pass
+            elif current_storage == "trade" and in_shop is True:
+                if inventory[trade_cod_dic[selected_shop_item]][1] > 0:
+                    inventory["coin"][1] += trade[trade_cod_dic[selected_shop_item]][0]
+                    inventory[trade_cod_dic[selected_shop_item]][1] -= 1
 
-    ## SPECIAL EXCEPTION: Special Item Activations
+            elif current_storage == "well" and in_shop is True:
+                if inventory["coin"][1] > 0:
+                    selected_shop_item = 0
+                    inventory["wateringcan"][1] += 1
+                    inventory["coin"][1] -= 1
 
-    for item in inventory:
-        if inventory[item][2] is True:
-            if item == "axe":
-                if hammer_death == 0:
+            elif current_storage == "farm" and in_shop is True:
+                pass
+
+        ## Check if Player wants to read Guide
+
+        if pressed_keys[K_DELETE]:
+            in_action = False
+            reader_y = 0
+
+        ## SPECIAL EXCEPTION: Special Item Activations
+
+        for item in inventory:
+            if inventory[item][2] is True:
+                if item == "axe":
+                    if hammer_death == 0:
+                        inventory[item][2] = False
+                        hammer_death = 3
+                if item in ["pear", "meat", "cherry"]:
                     inventory[item][2] = False
+                    health += 10
+
+        ## SPECIAL EXCEPTION: Cut down Trees
+
+        if scenery_map[player_y][player_x] != "":
+            move_player_back = True
+
+            if scenery_map[player_y][player_x] != "" \
+                    and inventory["axe"][2] is True:
+
+                if scenery_cod_dic[scenery_map[player_y][player_x]] == "cherry_tree":
+                    number = random.choice([0, 1, 2, 2, 2, 3, 3, 4])
+                    inventory["cherry"][1] += number
+
+                chances = random.randint(1, 3)
+                if chances == 2:
+                    inventory["nut"][1] += 1
+
+                scenery_map[player_y][player_x] = ""
+                objects_map[player_y][player_x] = objects_decod_dic["log"]
+
+                if hammer_death == 0:
                     hammer_death = 3
-            if item in ["pear", "meat"]:
-                inventory[item][2] = False
-                health += 10
+                else:
+                    hammer_death -= 1
 
-    ## SPECIAL EXCEPTION: Cut down Trees
+                move_player_back = False
 
-    if scenery_map[player_y][player_x] != "":
-        move_player_back = True
+            if move_player_back is True:
+                player_scene = 0
+                player_x = pre_player_x
+                player_y = pre_player_y
 
-        if scenery_map[player_y][player_x] != "" \
-                and inventory["axe"][2] is True:
+        ## Other
 
-            if scenery_cod_dic[scenery_map[player_y][player_x]] == "cherry_tree":
-                number = random.choice([0, 1, 2, 2, 2, 3, 3, 4])
-                inventory["cherry"][1] += number
+        health_timer -= 1
+        if health_timer == 0:
+            health_timer = 80
+            health -= 10
 
-            chances = random.randint(1, 3)
-            if chances == 2:
-                inventory["nut"][1] += 1
+        if health <= 0:
+            pygame.quit()
+            exit()
 
-            scenery_map[player_y][player_x] = ""
-            objects_map[player_y][player_x] = objects_decod_dic["log"]
+        money_timer -= 1
+        if money_timer == 0:
+            money_owed += 1
+            money_timer = 75
 
-            if hammer_death == 0:
-                hammer_death = 3
-            else:
-                hammer_death -= 1
+        ### Drawing Display
 
-            move_player_back = False
+        draw_map()
+        draw_inventory()
+        draw_health()
 
-        if move_player_back is True:
-            player_scene = 0
-            player_x = pre_player_x
-            player_y = pre_player_y
+        if in_shop is True:  # Draw activated store, if there exists one.
+            if current_storage == "shop":
+                draw_shop()
+            elif current_storage == "carpenter":
+                draw_carpenter()
+            elif current_storage == "bank":
+                draw_bank()
+            elif current_storage == "trade":
+                draw_trade()
+            elif current_storage == "well":
+                draw_well()
 
-    ### Drawing Display
+        draw_text("GUIDE", WIDTH - 100, HEIGHT - 52.5, my_screen, 40, "gold", "dincondensed")
+        draw_surface(my_screen, guide_surface, WIDTH - 40, HEIGHT - 40)
+        draw_rect(my_screen, WIDTH - 160, HEIGHT - 70, 150, 65, "gold", 1, 0)
 
-    draw_map()
-    draw_guide_lines()
-    draw_inventory()
-    draw_health()
+    else:
+        if pressed_keys[K_UP]:
+            reader_y -= 2
 
-    if in_shop is True:  # Draw activated store, if there exists one.
-        if current_storage == "shop":
-            draw_shop()
-        elif current_storage == "carpenter":
-            draw_carpenter()
-        elif current_storage == "bank":
-            draw_bank()
-        elif current_storage == "trade":
-            draw_trade()
-        elif current_storage == "well":
-            draw_well()
+        if pressed_keys[K_DOWN]:
+            reader_y += 2
 
-    ## Other
+        if pressed_keys[K_DELETE]:
+            pygame.time.delay(60)
 
-    health_timer -= 1
-    if health_timer == 0:
-        health_timer = 80
-        health -= 10
+            in_action = True
+            reader_y = 0
 
-    if health <= 0:
-        pygame.quit()
-        exit()
+        window_surface = image_to_surface("window.png", img_dir, True)
+        window_surface = scale_surface(window_surface, 400, 450, False)
+        draw_surface(my_screen, window_surface, WIDTH/2, HEIGHT/2)
 
-    money_timer -= 1
-    if money_timer == 0:
-        money_owed += 1
-        money_timer = 75
+        draw_text("Actions:", 230, 230 + reader_y, my_screen, 25, "black", "arial", False)
+
+        draw_text("Press the arrow keys to move in their corresponding directions.", 230, 230 + 30 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("Press TAB to select an item in the inventory.", 230, 230 + 30*2 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("Press BACKSPACE to select an item in a store.", 230, 230 + 30*3 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("Press RETURN to activate/buy the selected item.", 230, 230 + 30*4 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("Press SPACE to pick up an item or animal, or to enter a building.", 230, 230 + 30*5 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("Press BACKLASH to drop an item or animal.", 230, 230 + 30*6 + reader_y, my_screen, 25, "black", "arial", False)
+
+        draw_text("Special actions:", 230, 230 + 30*7 + 50 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("Step over a seed and drop two wateringcans on it to grow a tree on the spot.", 230, 230 + 30*8 + 50 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("Feed an animal three pears, by leaving them there for the animals to eat, to", 230, 230 + 30*9 + 50 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("artificially cause the animal to reproduce.", 230, 230 + 30*10 + 50 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("Activate a hammer and walk into a tree to cut in down.", 230, 230 + 30*11 + 50 + reader_y, my_screen, 25, "black", "arial", False)
+
+        draw_text("And finally, press DELETE to view or leave the guide!", 230, 230 + 30*11 + 50*2 + reader_y, my_screen, 25, "black", "arial", False)
+
+        draw_text("So, please, enjoy playing MacroFarm!", 230, 230 + 30*11 + 50*3 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("This guide will be here for you whenever you need a hint.", 230, 230 + 30*12 + 50*3 + reader_y, my_screen, 25, "black", "arial", False)
+        draw_text("So, until then, intrepid adventurer!", 230, 230 + 30*13 + 50*3 + reader_y, my_screen, 25, "black", "arial", False)
+
+        draw_rect(my_screen, WIDTH/2, 180, 850, 75, (246, 216, 149), 0, 1)
+        draw_rect(my_screen, WIDTH/2, 180, 850, 75, "black", 3, 1)
+        draw_text("GUIDE ?", WIDTH/2, 162.5, my_screen, 40, "black", "dincondensed")
 
     pygame.time.delay(15)
     pygame.display.update()
