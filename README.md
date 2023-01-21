@@ -9,13 +9,16 @@ In late January, 2023, I have been working tirelessly to redesign the whole code
 
 After the whole code redesign, I am expecting to add a whole new purpose and set of features to the game, setting MacroFarm on a brand new course.
 
-Don't forget, you can support MacroFarm by sharing it with your friends, starring, and watching the repository!
+Don't forget, you can support MacroFarm by sharing it with your friends, joining MacroFarm's discussion group, starring, and watching the repository!
 
-So, don't forget to stay tuned!
+I'll see you then.
 
 Best Regards,
 
 Czeslaw Herbert Zestra Tracz, 
+
 Al Bateen, Aldar Academies, 
+
 21 Jan 2023,
+
 the Director, Illustrator, and Programmer
