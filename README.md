@@ -7,7 +7,7 @@ I would like to announce that although this respository hasn't been updated in 5
 
 In late January, 2023, I have been working tirelessly to redesign the whole code, making it neat, understandable, and modern.
 
-After the whole code redesign, I am expecting to add a whole new purpose and set of features to the game, setting MacroFarm on a Brand new course.
+After the whole code redesign, I am expecting to add a whole new purpose and set of features to the game, setting MacroFarm on a brand new course.
 
 Don't forget, you can support MacroFarm by sharing it with your friends, starring, and watching the repository!
 
