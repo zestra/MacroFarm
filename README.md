@@ -4,9 +4,6 @@
 
 # Draft 6: A Diary
 
-## Announcement
-The first functional draft of version 6 will be released somewhere between 22 Jan 2023 and 24 Jan 2023 inclusive.
-
 ## 21 Jan 2023
 
 The whole code redesign was started on 21 Jan 2023. So far, in one day, I have been able to preprogram the whole image directory, make a brand new range of classes, maps for each field, and the scrollable map ability. I am actually quite impressed with my pacing. Since I have had a lot of experience using pygame modules and python itself, it takes me 1/100 of the time to figure out what I need to code and to code it out compared to when I did so at the beginning of this career. Anyhow, here is the resulting program of 21 Jan 2023.
