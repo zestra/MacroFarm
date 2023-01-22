@@ -8,7 +8,7 @@
 
 The whole code redesign was started on 21 Jan 2023. So far, in one day, I have been able to preprogram the whole image directory, make a brand new range of classes, maps for each field, and the scrollable map ability. I am actually quite impressed with my pacing. Since I have had a lot of experience using pygame modules and python itself, it takes me 1/100 of the time to figure out what I need to code and to code it out compared to when I did so at the beginning of this career. Anyhow, here is the resulting program of 21 Jan 2023. Just click on the image to see the code.
 
-
+![Image 22-01-2023 at 8 30 AM](https://user-images.githubusercontent.com/104675837/213900869-6042d755-7b2e-4ee0-93a8-8e9e3e177333.JPG)
 
 # Announcement: Draft 6 (New!)
 I would like to announce that although this respository hasn't been updated in 5 months, MacroFarm hasn't been given up just yet. MacroFarm is going to recieve a gigantic new update in late Feburary, 2023, so don't forget to watch the repository to be notified about it.
