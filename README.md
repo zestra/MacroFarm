@@ -1,8 +1,8 @@
-# MacroFarm v7.0
+# MacroFarm v7
 
 <img width="1470" alt="Screenshot 2023-03-12 at 6 09 14 PM" src="https://user-images.githubusercontent.com/104675837/224550105-d2eea847-c99b-4316-863c-5b227a308b10.png">
 
-## Spring Major Update: v7.0 released!
+## Spring Major Update: v7 released!
 
 Welcome back to MacroFarm! It has been 6 months, that's half a year!, since the last major update, which introduced a brand new way of roaming the map and interacting with the inventory. Since then, MacroFarm has advanced incredibly, from the outside and inside. So, let's dive in.
 
@@ -21,3 +21,7 @@ With v7.2 of MacroFarm, we are excited a brand new feature never seen in MacroFa
 ### 4. Universal Health Bars
 
 If you remember, v7.0 was fully updated with Object Oriented Code, which allowed it to have much more flexibilty and abilities. So, we will now address one of MacroFarm's new features which was enabled as a consequence: Universal Health Bars. When programming v7.3, our developers made a parent class called Organism, and one of the functions it contained displayed a health bar over the organism's image. Thus, every subclass of Organism would have this feature. This enabled the subclasses Player, NAnimal, and BAnimal to all have this feature in just one paragraph of code. Were our developers to implement this feature without Object Oriented Programming, the feature would probably have to take up 4 to 5 paragraphs of code. See how much easier things are to manage with Object Oriented Programming established in?! Well, you should, anyhow, and now every organism has a health bar over their head, which allows for more complex events to happen, such as animal reproduction, animal poverty, animal disease, etc.
+
+### 5. Status Island
+
+Status Island is once again a brand new addition to the MacroFarm experience. The Status Island includes the player's health bar, the current selected inventory and store items, and current storage, and a timer. It was developed so as to clear any kind of confusion of which storage the player is currently using. We plan to extend the capabilities of Status Island along with Notification Plus to form a fully functional, interactive notification system.
