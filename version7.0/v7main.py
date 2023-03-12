@@ -9,7 +9,6 @@ pygame.init()
 WIDTH, HEIGHT = 1470, 956  
 my_window = pygame.display.set_mode((WIDTH, HEIGHT), NOFRAME)
 
-
 images = {"Animal" : {"chick": {"down" : "chick_front", 
                                  "up"   : "chick_back",
                                  "right": "chick_right",
