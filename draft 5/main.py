@@ -122,9 +122,9 @@ visible_height_index = int(player_y / 2)
 
 ## Resource Directory Information
 
-main_dir = "/Users/zestra/PycharmProjects/MacroFarm/draft 5/"
-img_dir = "/Users/zestra/PycharmProjects/MacroFarm/draft 5/images/"
-sound_dir = "/Users/zestra/PycharmProjects/MacroFarm/draft 5/sounds/"
+main_dir = "/Users/czeslawtracz/PycharmProjects/MacroFarm2/draft 5/"
+img_dir = "/Users/czeslawtracz/PycharmProjects/MacroFarm2/draft 5/images/"
+sound_dir = "/Users/czeslawtracz/PycharmProjects/MacroFarm2/draft 5/sounds/"
 
 ## Initiating Pygame
 
@@ -977,7 +977,7 @@ while run:
 
         ## Check if Player wants to read Guide
 
-        if pressed_keys[K_DELETE]:
+        if pressed_keys[K_y]:
             in_action = False
             reader_y = 0
 
@@ -1069,7 +1069,7 @@ while run:
         if pressed_keys[K_DOWN]:
             reader_y += 2
 
-        if pressed_keys[K_DELETE]:
+        if pressed_keys[K_y]:
             pygame.time.delay(60)
 
             in_action = True

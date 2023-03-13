@@ -1305,7 +1305,11 @@ while True:
     my_window.fill("black")
 
     for event in pygame.event.get():
-        pass        
+        pass
+
+    if player.health <= 0:
+        pygame.quit()
+        quit()
 
     for row in animal_map:
         for animal in row:
@@ -1317,10 +1321,6 @@ while True:
     
     for y in range(1, visible_window_height + 1):
         for x in range(1, visible_window_width + 1):
-            # draw_image(my_window, images["Block"]["water"], mid_x_coord + x * TILE,
-            #           mid_y_coord + (y + 8)*TILE,
-            #           img_dir, False)
-            #
             draw_image(my_window, images["Block"]["water"],
                       (x*TILE + mid_x_coord),
                       (y*TILE - mid_y_coord),

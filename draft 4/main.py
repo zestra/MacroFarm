@@ -32,18 +32,18 @@ player_x, player_y = int(visible_width_window / 2) - 1, int(visible_height_windo
 
 # images
 
-main_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 4/"
-img_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 4/images/"
-sound_dir = "/Users/zestra/PycharmProjects/Zestras-MineCraft/draft 4/sounds/"
+main_dir = "/Users/czeslawtracz/PycharmProjects/MacroFarm2/"
+img_dir = "/Users/czeslawtracz/PycharmProjects/MacroFarm2/draft 4/images/"
+sound_dir = "/Users/czeslawtracz/PycharmProjects/MacroFarm2/draft 4/sounds/"
 
 # init pygame
 
 pygame.init()
 my_screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
-pygame.mixer.init()
-pygame.mixer.music.load(sound_dir + "theme.wav")
-pygame.mixer.music.play(-1)
+# pygame.mixer.init()
+# pygame.mixer.music.load(sound_dir + "theme.wav")
+# pygame.mixer.music.play(-1)
 
 money_owed = 10
 money_timer = 75
