@@ -1,6 +1,6 @@
 # MacroFarm v7
 
-<img width="1470" alt="Screenshot 2023-03-14 at 7 41 35 AM" src="https://user-images.githubusercontent.com/104675837/224887648-439e0c08-fb5b-4464-a30d-d7f112714a71.png">
+<img width="1470" alt="v7display" src="https://user-images.githubusercontent.com/104675837/224888036-a16df4ce-551b-41c5-ba91-277fd9678841.png">
 
 ## Spring Major Update: v7 released!
 
