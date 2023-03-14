@@ -412,8 +412,8 @@ class Player(Organism):
         pygame.time.delay(10000000)
 
     def draw_inventory(self):
-
-        draw_rect(my_window, 275 / 2, HEIGHT / 2 + 2, 275, visible_window_height * TILE, (40, 40, 40), True)
+        draw_rect(my_window, 275 / 2, HEIGHT / 2 + 2, 275, visible_window_height * TILE, "white", True)
+        draw_rect(my_window, 275 / 2, HEIGHT / 2 + 2, 270, visible_window_height * TILE - 5, (40, 40, 40), True)
 
         row_index_max = 3
 
@@ -494,71 +494,138 @@ class Player(Organism):
         draw_text(my_window, "INVENTORY", 275 / 2, HEIGHT / 2 - 265, 45, "white", "din condensed")
         draw_rect(my_window, 275/2, HEIGHT/2 - 220, 120, 2)
 
-    def draw_store(self):
-        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 275, visible_window_height * TILE, (40, 40, 40), True)
+    # def draw_store(self):
+    #     draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 275, visible_window_height * TILE, "white", True)
+    #     draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 270, visible_window_height * TILE - 5, (40, 40, 40), True)
+    #     draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 260, visible_window_height * TILE - 15, "white", True)
+    #     draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 255, visible_window_height * TILE - 20, (40, 40, 40), True)
+    #
+    #     index = 0
+    #
+    #     if self.current_storage == "farm":
+    #         storage = farm
+    #     elif self.current_storage == "shop":
+    #         storage = shop
+    #     elif self.current_storage == "carpenter":
+    #         storage = carpenter
+    #     elif self.current_storage == "factory":
+    #         storage = factory
+    #
+    #     for item in storage:
+    #         image = item_data[item]["image_filename"]
+    #
+    #         draw_image(my_window, image, WIDTH - 275 / 2 - 5,
+    #                    HEIGHT / 4 + 110 + index * (TILE + 35) + 5, img_dir, True)
+    #
+    #         draw_rect(my_window, WIDTH - 275 / 2,
+    #                   350 + index * (TILE + 35), 60, 60, "white", False)
+    #
+    #         if item == self.selected_consumer_item:
+    #             draw_image(my_window, "selection", WIDTH - 275 / 2,
+    #                        350 + index * (TILE + 35), img_dir, True)
+    #         index += 1
+    #
+    #     self.draw_prize_banner(self.selected_consumer_item)
+    #
+    #     draw_text(my_window, self.current_storage.upper(), WIDTH - 275 / 2, HEIGHT / 2 - 265, 45, "white", "din condensed")
+    #     draw_rect(my_window, WIDTH - 275/2, HEIGHT/2 - 220, 120, 2)
 
+    def draw_store(self):
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 275, visible_window_height * TILE, "white", True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 270, visible_window_height * TILE - 5, (40, 40, 40), True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 260, visible_window_height * TILE - 15, "white", True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 255, visible_window_height * TILE - 20, (40, 40, 40), True)
+
+        row_index_max = 3
+
+        row_index = -int(self.selected_consumer_item_index/3)
+
+        column_index = 0
         index = 0
 
-        if self.current_storage == "farm":
-            storage = farm
-        elif self.current_storage == "shop":
-            storage = shop
+        if self.current_storage == "factory":
+            list = factory
+        elif self.current_storage == "farm":
+            list = farm
         elif self.current_storage == "carpenter":
-            storage = carpenter
-        elif self.current_storage == "factory":
-            storage = factory
+            list = carpenter
+        elif self.current_storage == "shop":
+            list = shop
 
-        for item in storage:
-            image = item_data[item]["image_filename"]
+        for item in list:
+            if column_index % 3 == 0:
+                column_index = 0
 
-            draw_image(my_window, image, WIDTH - 275 / 2 - 5,
-                       HEIGHT / 4 + 110 + index * (TILE + 35) + 5, img_dir, True)
+            if index % row_index_max == 0:
+                row_index += 1
 
-            draw_rect(my_window, WIDTH - 275 / 2,
-                      350 + index * (TILE + 35), 60, 60, "white", False)
+            if (265 + row_index * (TILE + 35) < HEIGHT / 2 - 180) \
+                    or (267.5 + row_index * (TILE + 35) > HEIGHT / 2 + 275):
+                continue
+
+            item_image = item_data[item]["image_filename"]
+
+            draw_image(my_window, item_image, WIDTH - 205 + column_index * (TILE + 35),
+                       265 + row_index * (TILE + 35), img_dir,
+                       True)
+
+            draw_rect(my_window, WIDTH - 205 + column_index * (TILE + 35),
+                      267.5 + row_index * (TILE + 35), 60, 60, "white", False)
 
             if item == self.selected_consumer_item:
-                draw_image(my_window, "selection", WIDTH - 275 / 2,
-                           350 + index * (TILE + 35), img_dir, True)
+                draw_image(my_window, item_image, WIDTH - 205 + column_index * (TILE + 35),
+                           265 + row_index * (TILE + 35), img_dir,
+                           True)
+                draw_image(my_window, "selection", WIDTH - 205 + column_index * (TILE + 35),
+                           267.5 + row_index * (TILE + 35), img_dir, True)
+            column_index += 1
             index += 1
+
+        draw_text(my_window, self.current_storage.upper(), WIDTH - 275 / 2, HEIGHT / 2 - 265, 45, "white", "din condensed")
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 - 220, 120, 2)
 
         self.draw_prize_banner(self.selected_consumer_item)
 
-        draw_text(my_window, self.current_storage.upper(), WIDTH - 275 / 2, HEIGHT / 2 - 248, 45, "white", "din condensed")
-
     def draw_bank(self):
-        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 275, visible_window_height * TILE, (40, 40, 40), True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 275, visible_window_height * TILE, "white", True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 270, visible_window_height * TILE - 5, (40, 40, 40), True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 260, visible_window_height * TILE - 15, "white", True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 255, visible_window_height * TILE - 20, (40, 40, 40), True)
 
-        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 - 120, 175, 120, "blue", True)
-        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 - 120, 160, 105, (40, 40, 40), True)
-        draw_text(my_window, "Collect", WIDTH - 275 / 2, HEIGHT / 2 - 160, 20, "white")
-        draw_text(my_window, "Earned Money", WIDTH - 275 / 2, HEIGHT / 2 - 130, 20, "white")
-        draw_text(my_window, str(self.money_owed), WIDTH - 275 / 2, HEIGHT / 2 - 100, 25, "white")
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 - 120, 175, 120, "white", True)
+        draw_text(my_window, "Collect", WIDTH - 275 / 2, HEIGHT / 2 - 160, 30, "black", "dincondensed")
+        draw_text(my_window, "Earned Money", WIDTH - 275 / 2, HEIGHT / 2 - 130, 30, "black", "dincondensed")
+        draw_text(my_window, str(self.money_owed)+" $", WIDTH - 275 / 2, HEIGHT / 2 - 100, 30, "black", "dincondensed")
 
-        draw_text(my_window, self.current_storage.upper(), WIDTH - 275 / 2, HEIGHT / 2 - 248, 45, "white",
+        draw_text(my_window, self.current_storage.upper(), WIDTH - 275 / 2, HEIGHT / 2 - 265, 45, "white",
                   "din condensed")
+        draw_rect(my_window, WIDTH - 275/2, HEIGHT/2 - 220, 120, 2)
 
     def draw_well(self):
-        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 275, visible_window_height * TILE, (40, 40, 40), True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 275, visible_window_height * TILE, "white", True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 270, visible_window_height * TILE - 5, (40, 40, 40), True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 260, visible_window_height * TILE - 15, "white", True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 + 2, 255, visible_window_height * TILE - 20, (40, 40, 40), True)
 
-        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 - 120, 175, 120, "blue", True)
-        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 - 120, 160, 105, (40, 40, 40), True)
-        draw_text(my_window, "Collect", WIDTH - 275 / 2, HEIGHT / 2 - 165, 20, "white")
-        draw_text(my_window, "Bucket of Water", WIDTH - 275 / 2, HEIGHT / 2 - 135, 20, "white")
-        draw_image(my_window, item_data["wateringcan"]["image_filename"], WIDTH - 275 / 2, HEIGHT / 2 - 95, img_dir, True)
+        draw_rect(my_window, WIDTH - 275 / 2, HEIGHT / 2 - 120, 175, 120, "white", True)
+        draw_text(my_window, "Collect", WIDTH - 275 / 2, HEIGHT / 2 - 165, 30, "black", "dincondensed")
+        draw_text(my_window, "Bucket of Water", WIDTH - 275 / 2, HEIGHT / 2 - 135, 30, "black", "dincondensed")
+        draw_image(my_window, item_data["wateringcan"]["image_filename"], WIDTH - 275 / 2, HEIGHT / 2 - 85, img_dir, True)
         self.draw_prize_banner("wateringcan")
 
-        draw_text(my_window, self.current_storage.upper(), WIDTH - 275 / 2, HEIGHT / 2 - 248, 45, "white",
+        draw_text(my_window, self.current_storage.upper(), WIDTH - 275 / 2, HEIGHT / 2 - 265, 45, "white",
                   "din condensed")
+        draw_rect(my_window, WIDTH - 275/2, HEIGHT/2 - 220, 120, 2)
 
     def draw_information(self):
         self.draw_current_storage()
         self.draw_health()
 
     def draw_current_storage(self):
-        draw_rect(my_window, WIDTH/2, 50, 600, 150, (40, 40, 40), True)
-        draw_circle(my_window, WIDTH/2 - 300, 0, 124, (40, 40, 40), True)
-        draw_circle(my_window, WIDTH/2 + 300, 0, 124, (40, 40, 40), True)
+        draw_rect(my_window, WIDTH/2, 62, 1200, 124, (40, 40, 40), True)
+
+        draw_rect(my_window, WIDTH/2 - 420, 80, 2, 50, "white", True)
+        draw_rect(my_window, WIDTH/2 + 420, 80, 2, 50, "white", True)
 
         draw_text(my_window, "current storage", WIDTH/2, 40, 25, "white", "arial")
         draw_text(my_window, self.current_storage, WIDTH/2, 75, 40, "white", "din condensed")
@@ -568,17 +635,16 @@ class Player(Organism):
 
         draw_text(my_window, "selected consumer item", WIDTH/2 + 250, 55, 15, "white", "arial")
         draw_text(my_window, self.selected_consumer_item, WIDTH/2 + 250, 80, 25, "white", "din condensed")
-                      
+
     def draw_health(self):
         Organism.draw_health(self)
 
         draw_rect(my_window, 275/2, 50, 40, 150, (40, 40, 40), True)
-        draw_circle(my_window, 155, 0, 124, (40, 40, 40), True)
         draw_circle(my_window, 117, 0, 124, (40, 40, 40), True)
 
-        draw_text(my_window, "health bar", 275/2, 50, 14, "white", "Arial")
+        draw_text(my_window, "health bar", 180, 50, 14, "white", "Arial")
 
-        draw_rect(my_window, 80, 85, 120, 25, "white", True, "left")
+        draw_rect(my_window, 120, 85, 120, 25, "white", True, "left")
 
         if self.health > 70:
             health_bar_colour = "green"
@@ -588,11 +654,11 @@ class Player(Organism):
             health_bar_colour = "red"
 
         draw_rect(my_window, 
-                  80, 85, 
+                  120, 85,
                   self.health*12/10, 25, health_bar_colour, True, "left")
 
         draw_text(my_window, str(self.health) + " %", 
-                  275/2, 75,
+                  180, 75,
                   18, "black", "arial", "center")
 
     def draw_exterior_storage(self):
